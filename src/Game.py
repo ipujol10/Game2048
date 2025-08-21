@@ -18,6 +18,7 @@ class Game:
         self.root.title("2048")
         self.mainframe: tk.Frame = tk.Frame(self.root)
         self._setMainframe()
+        self.gui_grid: list[list[tk.Label]]
 
         self.is_root_alive: bool = True
         self.root.bind_all("<Key>", self._key)
@@ -35,78 +36,23 @@ class Game:
 
     def _setMainframe(self) -> None:
         self.mainframe.grid(column=0, row=0, sticky=tk.N + tk.W + tk.E + tk.S)
-        tk.Label(
-            self.mainframe,
-            text="Test",
-            foreground="black",
-            background="red",
-            width=10,
-            height=5,
-        ).grid(column=0, row=0)
-        tk.Label(
-            self.mainframe,
-            text="Test2",
-            foreground="black",
-            background="red",
-            width=10,
-            height=5,
-        ).grid(column=1, row=0)
-        tk.Label(
-            self.mainframe,
-            text="Test3",
-            foreground="black",
-            background="red",
-            width=10,
-            height=5,
-        ).grid(column=2, row=0)
-        tk.Label(
-            self.mainframe,
-            text="Test4",
-            foreground="black",
-            background="red",
-            width=10,
-            height=5,
-        ).grid(column=0, row=1)
-        tk.Label(
-            self.mainframe,
-            text="Test5",
-            foreground="black",
-            background="red",
-            width=10,
-            height=5,
-        ).grid(column=1, row=1)
-        tk.Label(
-            self.mainframe,
-            text="Test6",
-            foreground="black",
-            background="red",
-            width=10,
-            height=5,
-        ).grid(column=2, row=1)
-        tk.Label(
-            self.mainframe,
-            text="Test7",
-            foreground="black",
-            background="red",
-            width=10,
-            height=5,
-        ).grid(column=0, row=2)
-        tk.Label(
-            self.mainframe,
-            text="Test8",
-            foreground="black",
-            background="red",
-            width=10,
-            height=5,
-        ).grid(column=1, row=2)
-        tk.Label(
-            self.mainframe,
-            text="Test9",
-            foreground="black",
-            background="red",
-            width=10,
-            height=5,
-        ).grid(column=2, row=2)
+        self.gui_grid = self._generateTiles()
+
+    def _generateTiles(self) -> list[list[tk.Label]]:
+        out: list[list[tk.Label]] = [[] for _ in range(4)]
+        for i in range(4):
+            for j in range(4):
+                label = tk.Label(
+                    self.mainframe,
+                    text="Test" + str(4 * i + j + 1),
+                    foreground="black",
+                    background="red",
+                    width=10,
+                    height=5,
+                )
+                label.grid(row=i, column=j)
+                out[i].append(label)
+        return out
 
     def __enter__(self) -> "Game":
         return self
