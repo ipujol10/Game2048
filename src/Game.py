@@ -34,6 +34,7 @@ class Game:
         self._newTile()
         self.grid.updateAvailableSpace()
         self.grid.draw()
+        self._draw()
 
     def _setMainframe(self) -> None:
         self.mainframe.grid(column=0, row=0, sticky=tk.N + tk.W + tk.E + tk.S)
@@ -44,7 +45,7 @@ class Game:
         out: list[list[tk.StringVar]] = [[] for _ in range(4)]
         for i in range(4):
             for j in range(4):
-                text: tk.StringVar = tk.StringVar(self.mainframe, "Test" + str(4 * i + j + 1))
+                text: tk.StringVar = tk.StringVar(self.mainframe, "")
                 tk.Label(
                     self.mainframe,
                     textvariable=text,
@@ -52,6 +53,8 @@ class Game:
                     background="white",
                     width=width,
                     height=width // 2,
+                    highlightbackground="black",
+                    highlightthickness=1,
                 ).grid(row=i, column=j)
                 out[i].append(text)
         return out
@@ -87,6 +90,7 @@ class Game:
         if moved:
             self._newTile()
         self.grid.draw()
+        self._draw()
 
     def _isEndgame(self) -> bool:
         if any(2048 in row for row in self.grid.grid):
@@ -116,3 +120,9 @@ class Game:
             return
         x, y = choice(empty_cells)
         self.grid.grid[y][x] = 2 if random() < 0.8 else 4
+
+    def _draw(self) -> None:
+        for i in range(4):
+            for j in range(4):
+                value: int = self.grid.grid[i][j]
+                self.text_vars[i][j].set("" if value == 0 else str(value))
