@@ -40,6 +40,7 @@ class Game:
         self.text_vars = self._generateTiles()
 
     def _generateTiles(self) -> list[list[tk.StringVar]]:
+        width = 10
         out: list[list[tk.StringVar]] = [[] for _ in range(4)]
         for i in range(4):
             for j in range(4):
@@ -48,9 +49,9 @@ class Game:
                     self.mainframe,
                     textvariable=text,
                     foreground="black",
-                    background="red",
-                    width=10,
-                    height=5,
+                    background="white",
+                    width=width,
+                    height=width // 2,
                 ).grid(row=i, column=j)
                 out[i].append(text)
         return out
