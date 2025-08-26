@@ -33,7 +33,6 @@ class Game:
 
         self._newTile()
         self.grid.updateAvailableSpace()
-        self.grid.draw()
         self._draw()
 
     def _setMainframe(self) -> None:
@@ -89,7 +88,6 @@ class Game:
 
         if moved:
             self._newTile()
-        self.grid.draw()
         self._draw()
 
     def _isEndgame(self) -> bool:
