@@ -19,6 +19,7 @@ class Game:
         self.mainframe: tk.Frame = tk.Frame(self.root)
         self._setMainframe()
         self.gui_grid: list[list[tk.Label]]
+        self.text_vars: list[list[tk.StringVar]]
 
         self.is_root_alive: bool = True
         self.root.bind_all("<Key>", self._key)
@@ -36,22 +37,22 @@ class Game:
 
     def _setMainframe(self) -> None:
         self.mainframe.grid(column=0, row=0, sticky=tk.N + tk.W + tk.E + tk.S)
-        self.gui_grid = self._generateTiles()
+        self.text_vars = self._generateTiles()
 
-    def _generateTiles(self) -> list[list[tk.Label]]:
-        out: list[list[tk.Label]] = [[] for _ in range(4)]
+    def _generateTiles(self) -> list[list[tk.StringVar]]:
+        out: list[list[tk.StringVar]] = [[] for _ in range(4)]
         for i in range(4):
             for j in range(4):
-                label = tk.Label(
+                text: tk.StringVar = tk.StringVar(self.mainframe, "Test" + str(4 * i + j + 1))
+                tk.Label(
                     self.mainframe,
-                    text="Test" + str(4 * i + j + 1),
+                    textvariable=text,
                     foreground="black",
                     background="red",
                     width=10,
                     height=5,
-                )
-                label.grid(row=i, column=j)
-                out[i].append(label)
+                ).grid(row=i, column=j)
+                out[i].append(text)
         return out
 
     def __enter__(self) -> "Game":
