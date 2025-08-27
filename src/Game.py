@@ -19,7 +19,6 @@ class Game:
         self.mainframe: tk.Frame = tk.Frame(self.root)
         self._setMainframe()
         self.gui_grid: list[list[tk.Label]]
-        self.text_vars: list[list[tk.StringVar]]
 
         self.is_root_alive: bool = True
         self.root.bind_all("<Key>", self._key)
@@ -37,26 +36,27 @@ class Game:
 
     def _setMainframe(self) -> None:
         self.mainframe.grid(column=0, row=0, sticky=tk.N + tk.W + tk.E + tk.S)
-        self.text_vars = self._generateTiles()
+        self.gui_grid = self._generateTiles()
 
-    def _generateTiles(self) -> list[list[tk.StringVar]]:
+    def _generateTiles(self) -> list[list[tk.Label]]:
         width = 10
-        out: list[list[tk.StringVar]] = [[] for _ in range(4)]
+        tiles: list[list[tk.Label]] = [[] for _ in range(4)]
         for i in range(4):
             for j in range(4):
-                text: tk.StringVar = tk.StringVar(self.mainframe, "")
-                tk.Label(
+                tile = tk.Label(
                     self.mainframe,
-                    textvariable=text,
+                    text="",
                     foreground="black",
                     background="white",
                     width=width,
                     height=width // 2,
                     highlightbackground="black",
                     highlightthickness=1,
-                ).grid(row=i, column=j)
-                out[i].append(text)
-        return out
+                    font=("Arial", 20, "bold"),
+                )
+                tile.grid(row=i, column=j)
+                tiles[i].append(tile)
+        return tiles
 
     def __enter__(self) -> "Game":
         return self
@@ -123,4 +123,4 @@ class Game:
         for i in range(4):
             for j in range(4):
                 value: int = self.grid.grid[i][j]
-                self.text_vars[i][j].set("" if value == 0 else str(value))
+                self.gui_grid[i][j].config(text=("" if value == 0 else str(value)))
