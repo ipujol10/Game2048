@@ -30,6 +30,21 @@ class Game:
             )
         }
 
+        self._colors: dict[int, str] = {
+            0: "#FFFFFF",  # HSL = (0, 100, 100)
+            2: "#FFEFEF",
+            4: "#FFE0E0",
+            8: "#FFD0D0",
+            16: "#FFC1C1",
+            32: "#FFB1B1",
+            64: "#FFA2A2",
+            128: "#FF9292",
+            256: "#FF8282",
+            512: "#FF7373",
+            1024: "#FF6363",
+            2048: "#FF5454",  # HSL = (0, 100, 66.4)
+        }
+
         self._newTile()
         self.grid.updateAvailableSpace()
         self._draw()
@@ -123,4 +138,4 @@ class Game:
         for i in range(4):
             for j in range(4):
                 value: int = self.grid.grid[i][j]
-                self.gui_grid[i][j].config(text=("" if value == 0 else str(value)))
+                self.gui_grid[i][j].config(text=("" if value == 0 else str(value)), background=self._colors[value])
