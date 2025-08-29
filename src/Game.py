@@ -6,7 +6,7 @@ from tkinter import Event
 from typing import Callable
 from random import random, choice
 import Grid
-from Utils import Directions
+from Utils import Directions, hsl2rgb
 
 
 class Game:
@@ -19,6 +19,7 @@ class Game:
         self.mainframe: tk.Frame = tk.Frame(self.root)
         self._setMainframe()
         self.gui_grid: list[list[tk.Label]]
+        self._colors: dict[int, str]
 
         self.is_root_alive: bool = True
         self.root.bind_all("<Key>", self._key)
@@ -29,21 +30,9 @@ class Game:
                 self._directions, [self.grid.up, self.grid.left, self.grid.down, self.grid.right]
             )
         }
+        self._win = 2048
 
-        self._colors: dict[int, str] = {
-            0: "#FFFFFF",  # HSL = (0, 100, 100)
-            2: "#FFEFEF",
-            4: "#FFE0E0",
-            8: "#FFD0D0",
-            16: "#FFC1C1",
-            32: "#FFB1B1",
-            64: "#FFA2A2",
-            128: "#FF9292",
-            256: "#FF8282",
-            512: "#FF7373",
-            1024: "#FF6363",
-            2048: "#FF5454",  # HSL = (0, 100, 66.4)
-        }
+        self._colors = self._generateColors(0, 100, 66.4)
 
         self._newTile()
         self.grid.updateAvailableSpace()
@@ -72,6 +61,19 @@ class Game:
                 tile.grid(row=i, column=j)
                 tiles[i].append(tile)
         return tiles
+
+    def _generateColors(self, hue: int, start_lightness: float, end_lightness: float) -> dict[int, str]:
+        keys: list[int] = [0, 2]
+        while keys[-1] < self._win:
+            keys.append(keys[-1] * 2)
+        steps: int = len(keys) - 1
+        delta: float = (end_lightness - start_lightness) / steps
+
+        colors: dict[int, str] = {}
+        for i, key in enumerate(keys):
+            lightness = start_lightness + delta * i
+            colors[key] = hsl2rgb(hue, 100, lightness)
+        return colors
 
     def __enter__(self) -> "Game":
         return self
@@ -106,7 +108,7 @@ class Game:
         self._draw()
 
     def _isEndgame(self) -> bool:
-        if any(2048 in row for row in self.grid.grid):
+        if any(self._win in row for row in self.grid.grid):
             return True
         if any(0 in row for row in self.grid.grid):
             return False
