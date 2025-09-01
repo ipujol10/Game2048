@@ -14,15 +14,15 @@ class Game:
 
     def __init__(self) -> None:
         self.grid: Grid.Grid = Grid.Grid()
-        self.root: tk.Tk = tk.Tk()
-        self.root.title("2048")
-        self.mainframe: tk.Frame = tk.Frame(self.root)
+        self.window: tk.Tk = tk.Tk()
+        self.window.title("2048")
+        self.mainframe: tk.Frame = tk.Frame(self.window)
         self._setMainframe()
         self.gui_grid: list[list[tk.Label]]
         self._colors: dict[int, str]
 
         self.is_root_alive: bool = True
-        self.root.bind_all("<Key>", self._key)
+        self.window.bind_all("<Key>", self._key)
         self._directions: list[str] = [el.name for el in Directions]
         self._dir_func: dict[str, Callable[[], bool]] = {
             direction: function
@@ -82,11 +82,11 @@ class Game:
         self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None
     ) -> None:
         if self.is_root_alive:
-            self.root.destroy()
+            self.window.destroy()
 
     def _destroy(self) -> None:
         self.is_root_alive = False
-        self.root.destroy()
+        self.window.destroy()
 
     def _key(self, event: Event) -> None:
         key: str = event.keysym
@@ -94,6 +94,7 @@ class Game:
         match key:
             case "Escape":
                 self._destroy()
+                return
             case val if val in self._directions:
                 while self._dir_func[val]():
                     moved = True
