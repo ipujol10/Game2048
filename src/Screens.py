@@ -1,3 +1,7 @@
+"""
+File with the different screens of the game
+"""
+
 import tkinter as tk
 from random import choice, random
 import Grid
@@ -22,9 +26,9 @@ class GameScreen(tk.Frame):
         self.gui_grid = self._generateTiles()
         self._colors = self._generateColors(0, 100, 66.4)
 
-        self._newTile()
+        self.newTile()
         self.grid.updateAvailableSpace()
-        self._draw()
+        self.draw()
 
     def _generateTiles(self) -> list[list[tk.Label]]:
         width = 10
@@ -59,7 +63,10 @@ class GameScreen(tk.Frame):
             colors[key] = hsl2rgb(hue, 100, lightness)
         return colors
 
-    def _isEndgame(self) -> bool:
+    def isEndgame(self) -> bool:
+        """
+        Checks if the player has won
+        """
         if any(self._win in row for row in self.grid.grid):
             return True
         if any(0 in row for row in self.grid.grid):
@@ -74,7 +81,7 @@ class GameScreen(tk.Frame):
                         return False
         return True
 
-    def _newTile(self) -> None:
+    def newTile(self) -> None:
         if not self.grid.available_space:
             return
 
@@ -88,7 +95,7 @@ class GameScreen(tk.Frame):
         x, y = choice(empty_cells)
         self.grid.grid[y][x] = 2 if random() < 0.8 else 4
 
-    def _draw(self) -> None:
+    def draw(self) -> None:
         for i in range(4):
             for j in range(4):
                 value: int = self.grid.grid[i][j]
