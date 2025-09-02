@@ -3,9 +3,11 @@ File with the different screens of the game
 """
 
 import tkinter as tk
+from tkinter import Event
+from typing import Callable
 from random import choice, random
 import Grid
-from Utils import hsl2rgb
+from Utils import hsl2rgb, Directions
 
 
 class GameScreen(tk.Frame):
@@ -17,17 +19,26 @@ class GameScreen(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
 
-        self.grid: Grid.Grid = Grid.Grid()
+        self.matrix: Grid.Grid = Grid.Grid()
         self.gui_grid: list[list[tk.Label]]
         self._colors: dict[int, str]
+
+        self.bind_all("<Key>", self._key)
+        self._directions: list[str] = [el.name for el in Directions]
+        self._dir_func: dict[str, Callable[[], bool]] = {
+            direction: function
+            for direction, function in zip(
+                self._directions, [self.matrix.up, self.matrix.left, self.matrix.down, self.matrix.right]
+            )
+        }
 
         self._win = 2048
 
         self.gui_grid = self._generateTiles()
-        self._colors = self._generateColors(0, 100, 66.4)
+        self._colors = self._generateColors(165, 100, 66.4)
 
         self.newTile()
-        self.grid.updateAvailableSpace()
+        self.matrix.updateAvailableSpace()
         self.draw()
 
     def _generateTiles(self) -> list[list[tk.Label]]:
@@ -67,36 +78,63 @@ class GameScreen(tk.Frame):
         """
         Checks if the player has won
         """
-        if any(self._win in row for row in self.grid.grid):
+        if any(self._win in row for row in self.matrix.grid):
             return True
-        if any(0 in row for row in self.grid.grid):
+        if any(0 in row for row in self.matrix.grid):
             return False
-        for y in range(self.grid.size):
-            for x in range(self.grid.size):
-                if self.grid.inside(x + 1, y):
-                    if self.grid[y][x + 1] == self.grid[y][x]:
+        for y in range(self.matrix.size):
+            for x in range(self.matrix.size):
+                if self.matrix.inside(x + 1, y):
+                    if self.matrix[y][x + 1] == self.matrix[y][x]:
                         return False
-                if self.grid.inside(x, y + 1):
-                    if self.grid[y + 1][x] == self.grid[y][x]:
+                if self.matrix.inside(x, y + 1):
+                    if self.matrix[y + 1][x] == self.matrix[y][x]:
                         return False
         return True
 
     def newTile(self) -> None:
-        if not self.grid.available_space:
+        """
+        Generate a new tile if there is space
+        """
+        if not self.matrix.available_space:
             return
 
         empty_cells: list[tuple[int, int]] = []
-        for y in range(self.grid.size):
-            for x in range(self.grid.size):
-                if self.grid.grid[y][x] == 0:
+        for y in range(self.matrix.size):
+            for x in range(self.matrix.size):
+                if self.matrix.grid[y][x] == 0:
                     empty_cells.append((x, y))
         if not empty_cells:
             return
         x, y = choice(empty_cells)
-        self.grid.grid[y][x] = 2 if random() < 0.8 else 4
+        self.matrix.grid[y][x] = 2 if random() < 0.8 else 4
 
     def draw(self) -> None:
+        """
+        Refresh the state of the game
+        """
         for i in range(4):
             for j in range(4):
-                value: int = self.grid.grid[i][j]
+                value: int = self.matrix.grid[i][j]
                 self.gui_grid[i][j].config(text=("" if value == 0 else str(value)), background=self._colors[value])
+
+    def _key(self, event: Event) -> None:
+        key: str = event.keysym
+        moved: bool = False
+        match key:
+            case "Escape":
+                self.controller.destroy()
+                return
+            case val if val in self._directions:
+                while self._dir_func[val]():
+                    moved = True
+            case _:
+                pass
+
+        if self.isEndgame():
+            self.controller.destroy()
+            return
+
+        if moved:
+            self.newTile()
+        self.draw()
