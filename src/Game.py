@@ -41,4 +41,4 @@ class Game(tk.Tk):
     def destroy(self) -> None:
         self.mainframe.tkraise()  # type:ignore
         self.is_root_alive = False
-        self.destroy()
+        self.quit()
