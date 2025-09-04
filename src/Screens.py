@@ -128,7 +128,7 @@ class GameScreen(tk.Frame):
         moved: bool = False
         match key:
             case "Escape":
-                self.controller.destroy()
+                self.controller.showScreen("MainMenuScreen")
                 return
             case val if val in self._directions:
                 while self._dir_func[val]():
@@ -178,11 +178,20 @@ class MainMenuScreen(tk.Frame):
         self.grid_rowconfigure(1, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
+    def _key(self, event: Event) -> None:
+        key: str = event.keysym
+        match key:
+            case "Escape":
+                self.controller.destroy()
+            case _:
+                pass
+
     def bindKeyboard(self) -> None:
         """
         Bind the current screen keys
         """
         self.unbind_all("<Key>")
+        self.bind_all("<Key>", self._key)
 
     def _gameButtonBind(self) -> None:
         self.controller.showScreen("GameScreen")
