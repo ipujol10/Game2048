@@ -6,11 +6,12 @@ class Grid:
 
     def __init__(self) -> None:
         self.size: int = 4
-        self.grid: list[list[int]] = [[0 for _ in range(self.size)] for _ in range(self.size)]
+        self.grid: list[list[int]]
+        self._empty_cells: int
+        self.available_space: bool
+        self.finished: bool
 
-        self._empty_cells: int = self.size * self.size
-        self.available_space: bool = True
-        self.finished: bool = False
+        self.reset()
 
     def __getitem__(self, key: int) -> list[int]:
         return self.grid[key]
@@ -106,3 +107,10 @@ class Grid:
         if current == 2048:
             self.finished = True
         return True
+
+    def reset(self) -> None:
+        """Resset board"""
+        self.grid = [[0 for _ in range(self.size)] for _ in range(self.size)]
+        self._empty_cells = self.size * self.size
+        self.available_space = True
+        self.finished = False

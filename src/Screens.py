@@ -42,9 +42,7 @@ class GameScreen(tk.Frame):
         self.gui_grid = self._generateTiles()
         self._colors = self._generateColors(165, 100, 66.4)
 
-        self.newTile()
-        self.matrix.updateAvailableSpace()
-        self.draw()
+        self._resset()
 
     def _generateTiles(self) -> list[list[tk.Label]]:
         width = 10
@@ -137,6 +135,7 @@ class GameScreen(tk.Frame):
                 pass
 
         if self.isEndgame():
+            self._resset()
             self.controller.showScreen("MainMenuScreen")
             return
 
@@ -150,6 +149,12 @@ class GameScreen(tk.Frame):
         """
         self.unbind_all("<Key>")
         self.bind_all("<Key>", self._key)
+
+    def _resset(self) -> None:
+        self.matrix.reset()
+        self.newTile()
+        self.matrix.updateAvailableSpace()
+        self.draw()
 
 
 class MainMenuScreen(tk.Frame):
