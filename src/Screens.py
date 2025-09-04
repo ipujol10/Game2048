@@ -9,13 +9,18 @@ from random import choice, random
 import Grid
 from Utils import hsl2rgb, Directions
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from Game import Game
+
 
 class GameScreen(tk.Frame):
     """
     The screen with the game
     """
 
-    def __init__(self, parent: tk.Frame, controller: tk.Tk) -> None:
+    def __init__(self, parent: tk.Frame, controller: "Game") -> None:
         tk.Frame.__init__(self, parent)
         self.controller = controller
 
@@ -138,3 +143,35 @@ class GameScreen(tk.Frame):
         if moved:
             self.newTile()
         self.draw()
+
+    def bindKeyboard(self) -> None:
+        """
+        Bind the current screen keys
+        """
+        self.unbind_all("<Key>")
+        self.bind_all("<Key>", self._key)
+
+
+class MainMenuScreen(tk.Frame):
+    """
+    Main Menu screen class
+    """
+
+    def __init__(self, parent: tk.Frame, controller: "Game") -> None:
+        tk.Frame.__init__(self, master=parent)
+        self.controller = controller
+
+        tk.Button(self, text="Game", command=self._gameButtonBind).grid(row=0, column=0)
+        tk.Button(self, text="Settings", command=self._settingsButtonBind).grid(row=1, column=0)
+
+    def bindKeyboard(self) -> None:
+        """
+        Bind the current screen keys
+        """
+        self.unbind_all("<Key>")
+
+    def _gameButtonBind(self) -> None:
+        self.controller.showScreen("GameScreen")
+
+    def _settingsButtonBind(self) -> None:
+        raise NotImplementedError

@@ -3,7 +3,7 @@
 import tkinter as tk
 from types import TracebackType
 import Grid
-from Screens import GameScreen
+from Screens import GameScreen, MainMenuScreen
 
 
 class Game(tk.Tk):
@@ -16,17 +16,21 @@ class Game(tk.Tk):
         self.mainframe: tk.Frame = tk.Frame(self)
         self.mainframe.grid(column=0, row=0, sticky=tk.N + tk.W + tk.E + tk.S)
         self._current_frame: tk.Frame
-        self._frames: dict[str, tk.Frame] = {}
-        for F in (GameScreen,):
+        self._frames: dict[str, GameScreen | MainMenuScreen] = {}
+        for F in (GameScreen, MainMenuScreen):
             screen_name: str = F.__name__
             frame = F(parent=self.mainframe, controller=self)
             self._frames[screen_name] = frame
 
             frame.grid(row=0, column=0, sticky="nsew")
-            self._current_frame = frame
 
+        self.showScreen("MainMenuScreen")
         self.is_root_alive: bool = True
 
+    def showScreen(self, screen_name: str) -> None:
+        """Show a screen"""
+        self._current_frame = self._frames[screen_name]
+        self._current_frame.bindKeyboard()
         self._current_frame.tkraise()  # type: ignore
 
     def __enter__(self) -> "Game":
