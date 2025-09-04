@@ -161,8 +161,22 @@ class MainMenuScreen(tk.Frame):
         tk.Frame.__init__(self, master=parent)
         self.controller = controller
 
-        tk.Button(self, text="Game", command=self._gameButtonBind).grid(row=0, column=0)
-        tk.Button(self, text="Settings", command=self._settingsButtonBind).grid(row=1, column=0)
+        tk.Button(
+            self,
+            text="Game",
+            command=self._gameButtonBind,
+            font=("Arial", 20),
+        ).grid(row=0, column=0)
+        tk.Button(
+            self,
+            text="Settings",
+            command=self._settingsButtonBind,
+            font=("Arial", 20),
+        ).grid(row=1, column=0)
+
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=1)
+        self.grid_columnconfigure(0, weight=1)
 
     def bindKeyboard(self) -> None:
         """
