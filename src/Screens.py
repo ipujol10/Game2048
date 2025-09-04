@@ -137,7 +137,7 @@ class GameScreen(tk.Frame):
                 pass
 
         if self.isEndgame():
-            self.controller.destroy()
+            self.controller.showScreen("MainMenuScreen")
             return
 
         if moved:
