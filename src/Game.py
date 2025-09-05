@@ -3,7 +3,7 @@
 import tkinter as tk
 from types import TracebackType
 import Grid
-from Screens import GameScreen, MainMenuScreen
+from Screens import GameScreen, MainMenuScreen, MyScreen
 
 
 class Game(tk.Tk):
@@ -16,7 +16,7 @@ class Game(tk.Tk):
         self.mainframe: tk.Frame = tk.Frame(self)
         self.mainframe.grid(column=0, row=0, sticky=tk.N + tk.W + tk.E + tk.S)
         self._current_frame: tk.Frame
-        self._frames: dict[str, GameScreen | MainMenuScreen] = {}
+        self._frames: dict[str, MyScreen] = {}
         for F in (GameScreen, MainMenuScreen):
             screen_name: str = F.__name__
             frame = F(parent=self.mainframe, controller=self)

@@ -4,24 +4,36 @@ File with the different screens of the game
 
 import tkinter as tk
 from tkinter import Event
-from typing import Callable
+from typing import Callable, TYPE_CHECKING
 from random import choice, random
+from abc import ABC, abstractmethod
 import Grid
 from Utils import hsl2rgb, Directions
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from Game import Game
 
 
-class GameScreen(tk.Frame):
+class MyScreen(ABC, tk.Frame):
+    """Interface for Screens"""
+
+    def __init__(self, parent: tk.Frame) -> None:
+        tk.Frame.__init__(self, master=parent)
+
+    @abstractmethod
+    def bindKeyboard(self) -> None:
+        """
+        Bind the current screen keys
+        """
+
+
+class GameScreen(MyScreen):
     """
     The screen with the game
     """
 
     def __init__(self, parent: tk.Frame, controller: "Game") -> None:
-        tk.Frame.__init__(self, parent)
+        MyScreen.__init__(self, parent)
         self.controller = controller
 
         self.matrix: Grid.Grid = Grid.Grid()
@@ -157,13 +169,13 @@ class GameScreen(tk.Frame):
         self.draw()
 
 
-class MainMenuScreen(tk.Frame):
+class MainMenuScreen(MyScreen):
     """
     Main Menu screen class
     """
 
     def __init__(self, parent: tk.Frame, controller: "Game") -> None:
-        tk.Frame.__init__(self, master=parent)
+        MyScreen.__init__(self, parent)
         self.controller = controller
 
         tk.Button(
