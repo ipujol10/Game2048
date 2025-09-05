@@ -46,3 +46,9 @@ class Game(tk.Tk):
         self.mainframe.tkraise()  # type:ignore
         self.is_root_alive = False
         self.quit()
+
+    def reset(self) -> None:
+        """Reset the game"""
+        frame = self._frames["GameScreen"]
+        assert isinstance(frame, GameScreen)
+        frame.reset()

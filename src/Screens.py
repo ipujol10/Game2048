@@ -54,7 +54,7 @@ class GameScreen(MyScreen):
         self.gui_grid = self._generateTiles()
         self._colors = self._generateColors(165, 100, 66.4)
 
-        self._resset()
+        self.reset()
 
     def _generateTiles(self) -> list[list[tk.Label]]:
         width = 10
@@ -147,7 +147,7 @@ class GameScreen(MyScreen):
                 pass
 
         if self.isEndgame():
-            self._resset()
+            self.reset()
             self.controller.showScreen("MainMenuScreen")
             return
 
@@ -162,7 +162,8 @@ class GameScreen(MyScreen):
         self.unbind_all("<Key>")
         self.bind_all("<Key>", self._key)
 
-    def _resset(self) -> None:
+    def reset(self) -> None:
+        """Reset the game"""
         self.matrix.reset()
         self.newTile()
         self.matrix.updateAvailableSpace()
@@ -180,19 +181,26 @@ class MainMenuScreen(MyScreen):
 
         tk.Button(
             self,
-            text="Game",
-            command=self._gameButtonBind,
+            text="New Game",
+            command=self._newGameButtonBind,
             font=("Arial", 20),
         ).grid(row=0, column=0)
+        tk.Button(
+            self,
+            text="Continue Game",
+            command=self._continueGameButtonBind,
+            font=("Arial", 20),
+        ).grid(row=1, column=0)
         tk.Button(
             self,
             text="Settings",
             command=self._settingsButtonBind,
             font=("Arial", 20),
-        ).grid(row=1, column=0)
+        ).grid(row=2, column=0)
 
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
+        self.grid_rowconfigure(2, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
     def _key(self, event: Event) -> None:
@@ -210,7 +218,11 @@ class MainMenuScreen(MyScreen):
         self.unbind_all("<Key>")
         self.bind_all("<Key>", self._key)
 
-    def _gameButtonBind(self) -> None:
+    def _newGameButtonBind(self) -> None:
+        self.controller.reset()
+        self.controller.showScreen("GameScreen")
+
+    def _continueGameButtonBind(self) -> None:
         self.controller.showScreen("GameScreen")
 
     def _settingsButtonBind(self) -> None:
