@@ -8,7 +8,7 @@ from typing import Callable, TYPE_CHECKING
 from random import choice, random
 from abc import ABC, abstractmethod
 import Grid
-from Utils import hsl2rgb, Directions
+from Utils import hsl2rgb, Directions, Screens
 
 if TYPE_CHECKING:
     from Game import Game
@@ -138,7 +138,7 @@ class GameScreen(MyScreen):
         moved: bool = False
         match key:
             case "Escape":
-                self.controller.showScreen("MainMenuScreen")
+                self.controller.showScreen(Screens.MAIN_MENU)
                 return
             case val if val in self._directions:
                 while self._dir_func[val]():
@@ -148,7 +148,7 @@ class GameScreen(MyScreen):
 
         if self.isEndgame():
             self.reset()
-            self.controller.showScreen("MainMenuScreen")
+            self.controller.showScreen(Screens.MAIN_MENU)
             return
 
         if moved:
@@ -220,10 +220,10 @@ class MainMenuScreen(MyScreen):
 
     def _newGameButtonBind(self) -> None:
         self.controller.reset()
-        self.controller.showScreen("GameScreen")
+        self.controller.showScreen(Screens.GAME)
 
     def _continueGameButtonBind(self) -> None:
-        self.controller.showScreen("GameScreen")
+        self.controller.showScreen(Screens.GAME)
 
     def _settingsButtonBind(self) -> None:
         raise NotImplementedError

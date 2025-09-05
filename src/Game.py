@@ -4,6 +4,7 @@ import tkinter as tk
 from types import TracebackType
 import Grid
 from Screens import GameScreen, MainMenuScreen, MyScreen
+from Utils import Screens
 
 
 class Game(tk.Tk):
@@ -16,20 +17,19 @@ class Game(tk.Tk):
         self.mainframe: tk.Frame = tk.Frame(self)
         self.mainframe.grid(column=0, row=0, sticky=tk.N + tk.W + tk.E + tk.S)
         self._current_frame: tk.Frame
-        self._frames: dict[str, MyScreen] = {}
-        for F in (GameScreen, MainMenuScreen):
-            screen_name: str = F.__name__
-            frame = F(parent=self.mainframe, controller=self)
-            self._frames[screen_name] = frame
+        self._frames: dict[Screens, MyScreen] = {}
+        for i, f in enumerate((GameScreen, MainMenuScreen)):
+            frame = f(parent=self.mainframe, controller=self)
+            self._frames[Screens(i)] = frame
 
             frame.grid(row=0, column=0, sticky="nsew")
 
-        self.showScreen("MainMenuScreen")
+        self.showScreen(Screens.MAIN_MENU)
         self.is_root_alive: bool = True
 
-    def showScreen(self, screen_name: str) -> None:
+    def showScreen(self, screen: Screens) -> None:
         """Show a screen"""
-        self._current_frame = self._frames[screen_name]
+        self._current_frame = self._frames[screen]
         self._current_frame.bindKeyboard()
         self._current_frame.tkraise()  # type: ignore
 
@@ -49,6 +49,6 @@ class Game(tk.Tk):
 
     def reset(self) -> None:
         """Reset the game"""
-        frame = self._frames["GameScreen"]
+        frame = self._frames[Screens.GAME]
         assert isinstance(frame, GameScreen)
         frame.reset()

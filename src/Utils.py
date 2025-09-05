@@ -12,6 +12,14 @@ class Directions(Enum):
     Right = 3  # pylint: disable=C0103
 
 
+class Screens(Enum):
+    """An Enum with the different screens"""
+
+    GAME = 0
+    MAIN_MENU = 1
+    SETTINGS = 2
+
+
 def hsl2rgb(hue: int, saturation: float, lightness: float) -> str:
     """
     Function to convert a HSL value into an RGB
