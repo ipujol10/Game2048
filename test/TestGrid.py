@@ -36,6 +36,21 @@ class TestGridMove(unittest.TestCase):
         grid.right()
         self.assertEqual(grid.grid, top_right)
 
+    def testIsInside(self) -> None:
+        """Test the is the coordinate inside the boundaries method"""
+        grid: Grid = Grid()
+
+        self.assertTrue(grid.inside(0, 0))
+        self.assertTrue(grid.inside(0, 3))
+        self.assertTrue(grid.inside(3, 3))
+        self.assertTrue(grid.inside(3, 0))
+        self.assertTrue(grid.inside(2, 1))
+
+        self.assertFalse(grid.inside(-1, 0))
+        self.assertFalse(grid.inside(4, 0))
+        self.assertFalse(grid.inside(0, -1))
+        self.assertFalse(grid.inside(0, 4))
+
 
 if __name__ == "__main__":
     unittest.main()
