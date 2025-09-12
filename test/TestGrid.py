@@ -48,6 +48,18 @@ class TestGridMove(unittest.TestCase):
         grid.right()
         self.assertEqual(grid.grid, top_right)
 
+    @unittest.skip("Need to implement")
+    def testMultiplenNumbers(self) -> None:
+        """Test the move method when there are multiple numbers involved"""
+
+    @unittest.skip("Need to implement")
+    def testMultipleMergins(self) -> None:
+        """Test when threre are several possible merges"""
+
+
+class TestGrid(unittest.TestCase):
+    """Test the rest of the class methods"""
+
     def testIsInside(self) -> None:
         """Test the is the coordinate inside the boundaries method"""
         grid: Grid = Grid()
