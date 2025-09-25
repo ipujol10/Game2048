@@ -48,9 +48,35 @@ class TestGridMove(unittest.TestCase):
         grid.right()
         self.assertEqual(grid.grid, top_right)
 
+    def testMultiplenNumbersPack(self) -> None:
+        """Test the move method when there are multiple numbers involved in a pack"""
+        top_right = [[0 for _ in range(4)] for _ in range(4)]
+        top_right[0][2:] = [2, 4]
+        top_right[1][2:] = [4, 2]
+        top_left = [[0 for _ in range(4)] for _ in range(4)]
+        top_left[0][:2] = [2, 4]
+        top_left[1][:2] = [4, 2]
+        bottom_right = [[0 for _ in range(4)] for _ in range(4)]
+        bottom_right[2][2:] = [2, 4]
+        bottom_right[3][2:] = [4, 2]
+        bottom_left = [[0 for _ in range(4)] for _ in range(4)]
+        bottom_left[2][:2] = [2, 4]
+        bottom_left[3][:2] = [4, 2]
+
+        grid: Grid = Grid()
+        grid.grid = top_right
+        grid.down()
+        self.assertEqual(grid.grid, bottom_right)
+        grid.left()
+        self.assertEqual(grid.grid, bottom_left)
+        grid.up()
+        self.assertEqual(grid.grid, top_left)
+        grid.right()
+        self.assertEqual(grid.grid, top_right)
+
     @unittest.skip("Need to implement")
-    def testMultiplenNumbers(self) -> None:
-        """Test the move method when there are multiple numbers involved"""
+    def testMultipleNumbersSeparated(self) -> None:
+        """Test the move method when there are multiple numbers involded separated"""
 
     @unittest.skip("Need to implement")
     def testMultipleMergins(self) -> None:
