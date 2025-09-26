@@ -1,12 +1,14 @@
 """Module to have the grid and do all the operations"""
 
+from itertools import repeat
+
 
 class Grid:
     """Grid class"""
 
     def __init__(self) -> None:
         self.size: int = 4
-        self.grid: list[list[int]] = [[0 for _ in range(self.size)] for _ in range(self.size)]
+        self.grid: list[list[int]] = [[0 for _ in repeat(None, self.size)] for _ in repeat(None, self.size)]
 
         self._separator: str = " " + "---- " * 4
 

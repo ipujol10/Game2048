@@ -1,5 +1,6 @@
 """Testing the Grid class"""
 
+from itertools import repeat
 import unittest
 from src.Grid import Grid
 
@@ -9,15 +10,15 @@ class TestGridMove(unittest.TestCase):
 
     def testMoveSingle(self) -> None:
         """Test the move method with a single number"""
-        top_right = [[0 for _ in range(4)] for _ in range(4)]
+        top_right = [[0 for _ in repeat(None, 4)] for _ in repeat(None, 4)]
         top_right[0][3] = 2
-        top_left = [[0 for _ in range(4)] for _ in range(4)]
+        top_left = [[0 for _ in repeat(None, 4)] for _ in repeat(None, 4)]
         top_left[0][0] = 2
-        bottom_left = [[0 for _ in range(4)] for _ in range(4)]
+        bottom_left = [[0 for _ in repeat(None, 4)] for _ in repeat(None, 4)]
         bottom_left[3][0] = 2
-        bottom_right = [[0 for _ in range(4)] for _ in range(4)]
+        bottom_right = [[0 for _ in repeat(None, 4)] for _ in repeat(None, 4)]
         bottom_right[3][3] = 2
-        top_center = [[0 for _ in range(4)] for _ in range(4)]
+        top_center = [[0 for _ in repeat(None, 4)] for _ in repeat(None, 4)]
         top_center[0][2] = 2
 
         grid: Grid = Grid()
@@ -50,16 +51,16 @@ class TestGridMove(unittest.TestCase):
 
     def testMultiplenNumbersPack(self) -> None:
         """Test the move method when there are multiple numbers involved in a pack"""
-        top_right = [[0 for _ in range(4)] for _ in range(4)]
+        top_right = [[0 for _ in repeat(None, 4)] for _ in repeat(None, 4)]
         top_right[0][2:] = [2, 4]
         top_right[1][2:] = [4, 2]
-        top_left = [[0 for _ in range(4)] for _ in range(4)]
+        top_left = [[0 for _ in repeat(None, 4)] for _ in repeat(None, 4)]
         top_left[0][:2] = [2, 4]
         top_left[1][:2] = [4, 2]
-        bottom_right = [[0 for _ in range(4)] for _ in range(4)]
+        bottom_right = [[0 for _ in repeat(None, 4)] for _ in repeat(None, 4)]
         bottom_right[2][2:] = [2, 4]
         bottom_right[3][2:] = [4, 2]
-        bottom_left = [[0 for _ in range(4)] for _ in range(4)]
+        bottom_left = [[0 for _ in repeat(None, 4)] for _ in repeat(None, 4)]
         bottom_left[2][:2] = [2, 4]
         bottom_left[3][:2] = [4, 2]
 

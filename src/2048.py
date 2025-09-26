@@ -1,6 +1,6 @@
 """2048 Gmae"""  # pylint: disable=C0103
 
-from Game import Game
+from src.Game import Game
 
 
 def main() -> None:

@@ -5,8 +5,8 @@ from types import TracebackType
 from tkinter import Event
 from typing import Callable
 from random import random, choice
-import Grid
-from Utils import Directions
+from src import Grid
+from src.Utils import Directions
 
 
 class Game:
