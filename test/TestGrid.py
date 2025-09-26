@@ -119,9 +119,39 @@ class TestGridMove(unittest.TestCase):
         grid.left()
         self.assertEqual(grid.grid, end)
 
-    @unittest.skip("Need to implement")
     def testSimpleMergings(self) -> None:
         """Test when there are just 2 numbers able to merge"""
+        start = self._generateGrid()
+        start[0][0] = 2
+        start[0][1] = 2
+        end = self._generateGrid()
+        end[0][0] = 4
+
+        grid: Grid = Grid()
+        grid.grid = copy.deepcopy(start)
+        grid.left()
+        self.assertEqual(grid.grid, end)
+
+        end = self._generateGrid()
+        end[0][3] = 4
+        grid.grid = copy.deepcopy(start)
+        grid.right()
+        self.assertEqual(grid.grid, end)
+
+        start = self._generateGrid()
+        start[0][0] = 4
+        start[1][0] = 4
+        end = self._generateGrid()
+        end[0][0] = 8
+        grid.grid = copy.deepcopy(start)
+        grid.up()
+        self.assertEqual(grid.grid, end)
+
+        end = self._generateGrid()
+        end[3][0] = 8
+        grid.grid = copy.deepcopy(start)
+        grid.down()
+        self.assertEqual(grid.grid, end)
 
     @unittest.skip("Need to implement")
     def testMultipleMergings(self) -> None:
