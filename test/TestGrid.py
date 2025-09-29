@@ -153,9 +153,46 @@ class TestGridMove(unittest.TestCase):
         grid.down()
         self.assertEqual(grid.grid, end)
 
-    @unittest.skip("Need to implement")
     def testMultipleMergings(self) -> None:
         """Test when threre are several possible merges"""
+        start = self._generateGrid()
+        start[0][0] = 2
+        start[0][1] = 2
+        start[0][2] = 2
+        end = self._generateGrid()
+        end[0][0] = 4
+        end[0][1] = 2
+
+        grid: Grid = Grid()
+        grid.grid = copy.deepcopy(start)
+        grid.left()
+        self.assertEqual(grid.grid, end)
+
+        end = self._generateGrid()
+        end[0][2] = 2
+        end[0][3] = 4
+        grid.grid = copy.deepcopy(start)
+        grid.right()
+        self.assertEqual(grid.grid, end)
+
+        start = self._generateGrid()
+        start[0][0] = 2
+        start[0][1] = 2
+        start[0][2] = 2
+        start[0][3] = 2
+        end = self._generateGrid()
+        end[0][0] = 4
+        end[0][1] = 4
+        grid.grid = copy.deepcopy(start)
+        grid.left()
+        self.assertEqual(grid.grid, end)
+
+        end = self._generateGrid()
+        end[0][2] = 4
+        end[0][3] = 4
+        grid.grid = copy.deepcopy(start)
+        grid.right()
+        self.assertEqual(grid.grid, end)
 
 
 class TestGrid(unittest.TestCase):
