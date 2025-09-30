@@ -166,14 +166,16 @@ class TestGridMove(unittest.TestCase):
         grid: Grid = Grid()
         grid.grid = copy.deepcopy(start)
         grid.left()
-        self.assertEqual(grid.grid, end)
+        with self.subTest(msg="3 left"):
+            self.assertEqual(grid.grid, end)
 
         end = self._generateGrid()
         end[0][2] = 2
         end[0][3] = 4
         grid.grid = copy.deepcopy(start)
         grid.right()
-        self.assertEqual(grid.grid, end)
+        with self.subTest(msg="3 right"):
+            self.assertEqual(grid.grid, end)
 
         start = self._generateGrid()
         start[0][0] = 2
@@ -185,14 +187,16 @@ class TestGridMove(unittest.TestCase):
         end[0][1] = 4
         grid.grid = copy.deepcopy(start)
         grid.left()
-        self.assertEqual(grid.grid, end)
+        with self.subTest(msg="4 left"):
+            self.assertEqual(grid.grid, end)
 
         end = self._generateGrid()
         end[0][2] = 4
         end[0][3] = 4
         grid.grid = copy.deepcopy(start)
         grid.right()
-        self.assertEqual(grid.grid, end)
+        with self.subTest(msg="4 right"):
+            self.assertEqual(grid.grid, end)
 
 
 class TestGrid(unittest.TestCase):
