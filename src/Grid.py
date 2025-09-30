@@ -81,7 +81,7 @@ class Grid:
 
     def inside(self, x: int, y: int) -> bool:
         """Is the cell from the coordinates inside the boundaries?"""
-        return x >= 0 and x < self.size and y >= 0 and y < self.size
+        return 0 <= x < self.size and 0 <= y < self.size
 
     def _inLimit(self, var: int, positive: bool) -> bool:
         return var == self.size - 1 if positive else var == 0
