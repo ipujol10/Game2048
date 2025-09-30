@@ -198,6 +198,48 @@ class TestGridMove(unittest.TestCase):
         with self.subTest(msg="4 right"):
             self.assertEqual(grid.grid, end)
 
+        start = self._generateGrid()
+        start[0][0] = 8
+        start[0][1] = 4
+        start[0][2] = 2
+        start[0][3] = 2
+        start[2][0] = 64
+        start[2][1] = 32
+        start[2][2] = 16
+        start[2][3] = 16
+        end = self._generateGrid()
+        end[0][0] = 8
+        end[0][1] = 4
+        end[0][2] = 4
+        end[2][0] = 64
+        end[2][1] = 32
+        end[2][2] = 32
+
+        grid.grid = copy.deepcopy(start)
+        grid.left()
+        with self.subTest(msg="2 lines, 1 iteration"):
+            self.assertEqual(grid.grid, end)
+
+        end[0][1] = 8
+        end[0][2] = 0
+        end[2][1] = 64
+        end[2][2] = 0
+        grid.left()
+        with self.subTest(msg="2 lines, 2 iteration"):
+            self.assertEqual(grid.grid, end)
+
+        end[0][0] = 16
+        end[0][1] = 0
+        end[2][0] = 128
+        end[2][1] = 0
+        grid.left()
+        with self.subTest(msg="2 lines, 3 iteration"):
+            self.assertEqual(grid.grid, end)
+
+        grid.left()
+        with self.subTest(msg="2 lines, 4 iteration"):
+            self.assertEqual(grid.grid, end)
+
 
 class TestGrid(unittest.TestCase):
     """Test the rest of the class methods"""
