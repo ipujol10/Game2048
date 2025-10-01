@@ -7,8 +7,8 @@ from tkinter import Event
 from typing import Callable, TYPE_CHECKING
 from random import choice, random
 from abc import ABC, abstractmethod
-import Grid
-from Utils import hsl2rgb, Directions
+from src import Grid
+from src.Utils import hsl2rgb, Directions
 
 if TYPE_CHECKING:
     from Game import Game
@@ -141,8 +141,7 @@ class GameScreen(MyScreen):
                 self.controller.showScreen("MainMenuScreen")
                 return
             case val if val in self._directions:
-                while self._dir_func[val]():
-                    moved = True
+                moved = self._dir_func[val]()
             case _:
                 pass
 

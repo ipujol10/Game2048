@@ -49,8 +49,7 @@ class Grid:
                     (x2, y2) = (x, scan) if vertical else (scan, y)
                     stp: int = 1 if positive else -1
                     (x3, y3) = (x, scan + stp) if vertical else (scan + stp, y)
-                    if self._merge(x2, y2, x3, y3):
-                        return True
+                    self._merge(x2, y2, x3, y3)
                     for scan in range(scan_start, scan_end, scan_step):
                         (x2, y2) = (x, scan) if vertical else (scan, y)
                         (x3, y3) = (x, scan + stp) if vertical else (scan + stp, y)
@@ -61,13 +60,12 @@ class Grid:
                             self.grid[y2][x2] = number
                             moved = True
                             break
-                    if self._merge(x2, y2, x3, y3):
-                        return True
+                    self._merge(x2, y2, x3, y3)
         return moved
 
     def inside(self, x: int, y: int) -> bool:
         """Is the cell from the coordinates inside the boundaries?"""
-        return x >= 0 and x < self.size and y >= 0 and y < self.size
+        return 0 <= x < self.size and 0 <= y < self.size
 
     def _inLimit(self, var: int, positive: bool) -> bool:
         return var == self.size - 1 if positive else var == 0
@@ -93,20 +91,20 @@ class Grid:
         self._empty_cells = sum(row.count(0) for row in self.grid)
         self.available_space = self._empty_cells > 0
 
-    def _merge(self, x2: int, y2: int, x3: int, y3: int) -> bool:
-        if not self.inside(x3, y3):
-            return False
-        current: int = self.grid[y2][x2]
-        other: int = self.grid[y3][x3]
+    def _merge(self, x1: int, y1: int, x2: int, y2: int) -> None:
+        if not self.inside(x2, y2):
+            return
+        current: int = self.grid[y1][x1]
+        other: int = self.grid[y2][x2]
         if current != other:
-            return False
-        self.grid[y2][x2] = 0
-        self.grid[y3][x3] *= 2
+            return
+        self.grid[y1][x1] = 0
+        self.grid[y2][x2] *= 2
         self._empty_cells += 1
         self.available_space = True
         if current == 2048:
             self.finished = True
-        return True
+        return
 
     def reset(self) -> None:
         """Resset board"""

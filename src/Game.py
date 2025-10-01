@@ -2,8 +2,8 @@
 
 import tkinter as tk
 from types import TracebackType
-import Grid
-from Screens import GameScreen, MainMenuScreen, MyScreen
+from src import Grid
+from src.Screens import GameScreen, MainMenuScreen, MyScreen
 
 
 class Game(tk.Tk):
