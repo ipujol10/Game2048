@@ -226,9 +226,9 @@ class SettingsScreen(MyScreen):
 
     def __init__(self, parent: tk.Frame, controller: "Game") -> None:
         MyScreen.__init__(self, parent, controller)
-        self._win: tk.Text
+        self._win: tk.Entry
 
-        self._win = tk.Text(self, height=1, width=20)
+        self._win = tk.Entry(self, width=20)
         self._win.grid(column=1, row=0)
         tk.Label(self, text="Win at: ").grid(column=0, row=0)
 
@@ -247,24 +247,18 @@ class SettingsScreen(MyScreen):
 
     def setSettings(self) -> None:
         """Set the settings screen with the current values"""
-        self._win.delete("1.0", tk.END)
-        self._win.insert(tk.END, str(self.controller.getWin()))
+        self._win.delete(0, tk.END)
+        self._win.insert(0, str(self.controller.getWin()))
 
     def saveSettings(self) -> None:
         """Save the settings into game"""
-        win: int = self._correctWinInput(self._win.get("1.0", tk.END))
+        win: int = self._correctWinInput(self._win.get())
         self.controller.setGameSettings(win)
 
     def _correctWinInput(self, user_input: str) -> int:
         regex: str = r"^\d+(\.\d*)?$"
-        splitted: list[str] = user_input.split("\n")
-        title: str = "Input error"
-        if len(splitted) > 2:
-            self._dialogBox(title, "Multiline input detected")
-            return self.controller.getWin()
-        user_input = splitted[0]
         if not bool(re.match(regex, user_input)):
-            self._dialogBox(title, "Not a number")
+            self._dialogBox("Input error", "Not a number")
             return self.controller.getWin()
         number: int = int(float(user_input))
         log: int = int(math.log2(number))
