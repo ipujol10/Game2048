@@ -20,6 +20,7 @@ class MyScreen(ABC, tk.Frame):
     def __init__(self, parent: tk.Frame, controller: "Game") -> None:
         tk.Frame.__init__(self, master=parent)
         self.controller: "Game" = controller
+        self.win: int
 
     def bindKeyboard(self) -> None:
         """
@@ -54,7 +55,7 @@ class GameScreen(MyScreen):
             )
         }
 
-        self._win = 2048
+        self.win = 2048
 
         self.gui_grid = self._generateTiles()
         self._colors = self._generateColors(165, 100, 66.4)
@@ -83,7 +84,7 @@ class GameScreen(MyScreen):
 
     def _generateColors(self, hue: int, start_lightness: float, end_lightness: float) -> dict[int, str]:
         keys: list[int] = [0, 2]
-        while keys[-1] < self._win:
+        while keys[-1] < self.win:
             keys.append(keys[-1] * 2)
         steps: int = len(keys) - 1
         delta: float = (end_lightness - start_lightness) / steps
@@ -98,7 +99,7 @@ class GameScreen(MyScreen):
         """
         Checks if the player has won
         """
-        if any(self._win in row for row in self.matrix.grid):
+        if any(self.win in row for row in self.matrix.grid):
             return True
         if any(0 in row for row in self.matrix.grid):
             return False
@@ -237,6 +238,17 @@ class SettingsScreen(MyScreen):
         key: str = event.keysym
         match key:
             case "Escape":
+                self.saveSettings()
                 self.controller.showScreen(Screens.MAIN_MENU)
             case _:
                 pass
+
+    def setSettings(self) -> None:
+        """Set the settings screen with the current values"""
+        self._win.delete("1.0", tk.END)
+        self._win.insert(tk.END, self.controller.getWin())
+
+    def saveSettings(self) -> None:
+        """Save the settings into game"""
+        win: int = int(self._win.get("1.0", tk.END))
+        self.controller.setGameSettings(win)

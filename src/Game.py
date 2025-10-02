@@ -30,6 +30,8 @@ class Game(tk.Tk):
     def showScreen(self, screen: Screens) -> None:
         """Show a screen"""
         self._current_frame = self._frames[screen]
+        if isinstance(self._current_frame, SettingsScreen):
+            self._current_frame.setSettings()
         self._current_frame.bindKeyboard()
         self._current_frame.tkraise()  # type: ignore
 
@@ -52,3 +54,11 @@ class Game(tk.Tk):
         frame = self._frames[Screens.GAME]
         assert isinstance(frame, GameScreen)
         frame.reset()
+
+    def getWin(self) -> str:
+        """Get the Win parameter"""
+        return str(self._frames[Screens.GAME].win)
+
+    def setGameSettings(self, /, win: int) -> None:
+        """To be used when the settings have been done"""
+        self._frames[Screens.GAME].win = win
