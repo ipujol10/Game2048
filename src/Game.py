@@ -55,9 +55,9 @@ class Game(tk.Tk):
         assert isinstance(frame, GameScreen)
         frame.reset()
 
-    def getWin(self) -> str:
+    def getWin(self) -> int:
         """Get the Win parameter"""
-        return str(self._frames[Screens.GAME].win)
+        return self._frames[Screens.GAME].win
 
     def setGameSettings(self, /, win: int) -> None:
         """To be used when the settings have been done"""

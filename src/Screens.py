@@ -7,6 +7,8 @@ from tkinter import Event
 from typing import Callable, TYPE_CHECKING
 from random import choice, random
 from abc import ABC, abstractmethod
+import math
+import re
 from src import Grid
 from src.Utils import hsl2rgb, Directions, Screens
 
@@ -246,9 +248,18 @@ class SettingsScreen(MyScreen):
     def setSettings(self) -> None:
         """Set the settings screen with the current values"""
         self._win.delete("1.0", tk.END)
-        self._win.insert(tk.END, self.controller.getWin())
+        self._win.insert(tk.END, str(self.controller.getWin()))
 
     def saveSettings(self) -> None:
         """Save the settings into game"""
-        win: int = int(self._win.get("1.0", tk.END))
+        win: int = self._correctWinInput(self._win.get("1.0", tk.END))
         self.controller.setGameSettings(win)
+
+    def _correctWinInput(self, user_input: str) -> int:
+        regex: str = r"^\d+(\.\d*)?$"
+        user_input = user_input.strip()
+        if not bool(re.match(regex, user_input)):
+            return self.controller.getWin()
+        number: int = int(float(user_input))
+        log: int = int(math.log2(number))
+        return 2**log
