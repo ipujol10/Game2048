@@ -223,6 +223,15 @@ class SettingsScreen(MyScreen):
 
     def __init__(self, parent: tk.Frame, controller: "Game") -> None:
         MyScreen.__init__(self, parent, controller)
+        self._win: tk.Text
+
+        self._win = tk.Text(self, height=1, width=20)
+        self._win.grid(column=1, row=0)
+        tk.Label(self, text="Win at: ").grid(column=0, row=0)
+
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
 
     def _key(self, event: Event) -> None:
         key: str = event.keysym
