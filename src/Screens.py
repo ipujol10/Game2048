@@ -17,14 +17,20 @@ if TYPE_CHECKING:
 class MyScreen(ABC, tk.Frame):
     """Interface for Screens"""
 
-    def __init__(self, parent: tk.Frame) -> None:
+    def __init__(self, parent: tk.Frame, controller: "Game") -> None:
         tk.Frame.__init__(self, master=parent)
+        self.controller: "Game" = controller
 
-    @abstractmethod
     def bindKeyboard(self) -> None:
         """
         Bind the current screen keys
         """
+        self.unbind_all("<Key>")
+        self.bind_all("<Key>", self._key)
+
+    @abstractmethod
+    def _key(self, event: Event) -> None:
+        """Define how the program will react to the keyboard input"""
 
 
 class GameScreen(MyScreen):
@@ -33,8 +39,7 @@ class GameScreen(MyScreen):
     """
 
     def __init__(self, parent: tk.Frame, controller: "Game") -> None:
-        MyScreen.__init__(self, parent)
-        self.controller = controller
+        MyScreen.__init__(self, parent, controller)
 
         self.matrix: Grid.Grid = Grid.Grid()
         self.gui_grid: list[list[tk.Label]]
@@ -154,13 +159,6 @@ class GameScreen(MyScreen):
             self.newTile()
         self.draw()
 
-    def bindKeyboard(self) -> None:
-        """
-        Bind the current screen keys
-        """
-        self.unbind_all("<Key>")
-        self.bind_all("<Key>", self._key)
-
     def reset(self) -> None:
         """Reset the game"""
         self.matrix.reset()
@@ -175,8 +173,7 @@ class MainMenuScreen(MyScreen):
     """
 
     def __init__(self, parent: tk.Frame, controller: "Game") -> None:
-        MyScreen.__init__(self, parent)
-        self.controller = controller
+        MyScreen.__init__(self, parent, controller)
 
         tk.Button(
             self,
@@ -210,13 +207,6 @@ class MainMenuScreen(MyScreen):
             case _:
                 pass
 
-    def bindKeyboard(self) -> None:
-        """
-        Bind the current screen keys
-        """
-        self.unbind_all("<Key>")
-        self.bind_all("<Key>", self._key)
-
     def _newGameButtonBind(self) -> None:
         self.controller.reset()
         self.controller.showScreen(Screens.GAME)
@@ -225,4 +215,19 @@ class MainMenuScreen(MyScreen):
         self.controller.showScreen(Screens.GAME)
 
     def _settingsButtonBind(self) -> None:
-        raise NotImplementedError
+        self.controller.showScreen(Screens.SETTINGS)
+
+
+class SettingsScreen(MyScreen):
+    """Screen where you can tweek settings"""
+
+    def __init__(self, parent: tk.Frame, controller: "Game") -> None:
+        MyScreen.__init__(self, parent, controller)
+
+    def _key(self, event: Event) -> None:
+        key: str = event.keysym
+        match key:
+            case "Escape":
+                self.controller.showScreen(Screens.MAIN_MENU)
+            case _:
+                pass
