@@ -2,6 +2,7 @@
 File with the different screens of the game
 """
 
+from itertools import repeat
 import tkinter as tk
 from tkinter import Event, messagebox
 from typing import Callable, TYPE_CHECKING
@@ -165,7 +166,8 @@ class GameScreen(MyScreen):
     def reset(self) -> None:
         """Reset the game"""
         self.matrix.reset()
-        self.newTile()
+        for _ in repeat(None, 2):
+            self.newTile()
         self.matrix.updateAvailableSpace()
         self.draw()
 
