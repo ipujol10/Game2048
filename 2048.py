@@ -6,8 +6,7 @@ from src.Game import Game
 def main() -> None:
     """Entry point of the game"""
     with Game() as g:
-        # g.root.withdraw()
-        g.root.mainloop()
+        g.mainloop()
 
 
 if __name__ == "__main__":
