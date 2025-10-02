@@ -1,34 +1,20 @@
 """Module to have the grid and do all the operations"""
 
-from itertools import repeat
-
 
 class Grid:
     """Grid class"""
 
     def __init__(self) -> None:
         self.size: int = 4
-        self.grid: list[list[int]] = [[0 for _ in repeat(None, self.size)] for _ in repeat(None, self.size)]
+        self.grid: list[list[int]]
+        self._empty_cells: int
+        self.available_space: bool
+        self.finished: bool
 
-        self._separator: str = " " + "---- " * 4
-
-        self._empty_cells: int = self.size * self.size
-        self.available_space: bool = True
-        self.finished: bool = False
+        self.reset()
 
     def __getitem__(self, key: int) -> list[int]:
         return self.grid[key]
-
-    def draw(self) -> None:
-        """Draw the current state of the grid into the terminal"""
-        print(self._separator)
-        for y in range(self.size):
-            print("|", end="")
-            for x in range(self.size):
-                n: int = self.grid[y][x]
-                n_s: str = " " if n == 0 else str(n)
-                print(f"{n_s:^4}|", end="")
-            print("\n" + self._separator)
 
     def _move(self, *, positive: bool, vertical: bool) -> bool:
         """
@@ -119,3 +105,10 @@ class Grid:
         if current == 2048:
             self.finished = True
         return
+
+    def reset(self) -> None:
+        """Resset board"""
+        self.grid = [[0 for _ in range(self.size)] for _ in range(self.size)]
+        self._empty_cells = self.size * self.size
+        self.available_space = True
+        self.finished = False
