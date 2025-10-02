@@ -3,7 +3,7 @@ File with the different screens of the game
 """
 
 import tkinter as tk
-from tkinter import Event
+from tkinter import Event, messagebox
 from typing import Callable, TYPE_CHECKING
 from random import choice, random
 from abc import ABC, abstractmethod
@@ -257,9 +257,18 @@ class SettingsScreen(MyScreen):
 
     def _correctWinInput(self, user_input: str) -> int:
         regex: str = r"^\d+(\.\d*)?$"
-        user_input = user_input.strip()
+        splitted: list[str] = user_input.split("\n")
+        title: str = "Input error"
+        if len(splitted) > 2:
+            self._dialogBox(title, "Multiline input detected")
+            return self.controller.getWin()
+        user_input = splitted[0]
         if not bool(re.match(regex, user_input)):
+            self._dialogBox(title, "Not a number")
             return self.controller.getWin()
         number: int = int(float(user_input))
         log: int = int(math.log2(number))
         return 2**log
+
+    def _dialogBox(self, title: str, message: str) -> None:
+        messagebox.showwarning(title=title, message=message)
