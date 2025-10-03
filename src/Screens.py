@@ -258,7 +258,7 @@ class SettingsScreen(MyScreen):
         self.controller.setGameSettings(win)
 
     def _correctWinInput(self, user_input: str) -> int:
-        regex: str = r"^\d+(\.\d*)?$"
+        regex: str = r"^\d+(\.\d+)?$"
         if not bool(re.match(regex, user_input)):
             self._dialogBox("Input error", "Not a number")
             return self.controller.getWin()
