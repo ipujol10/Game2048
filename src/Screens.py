@@ -240,8 +240,22 @@ class SettingsScreen(MyScreen):
         self._base_color_entry: tk.Entry = tk.Entry(self, width=5)
         self._base_color_entry.grid(column=2, row=1)
 
+        tk.Label(self, text="Set start tone (0-255)??").grid(column=0, row=2)
+        self._start_color: tk.Label = tk.Label(self, height=1, width=2, relief="groove")
+        self._start_color.grid(column=1, row=2)
+        self._start_color_entry: tk.Entry = tk.Entry(self, width=5)
+        self._start_color_entry.grid(column=2, row=2)
+
+        tk.Label(self, text="Set end tone (0-255)??").grid(column=0, row=3)
+        self._end_color: tk.Label = tk.Label(self, height=1, width=2, relief="groove")
+        self._end_color.grid(column=1, row=3)
+        self._end_color_entry: tk.Entry = tk.Entry(self, width=5)
+        self._end_color_entry.grid(column=2, row=3)
+
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
+        self.grid_rowconfigure(2, weight=1)
+        self.grid_rowconfigure(3, weight=1)
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure(2, weight=1)
