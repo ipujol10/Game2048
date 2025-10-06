@@ -2,6 +2,7 @@
 File with the different screens of the game
 """
 
+from itertools import repeat
 import tkinter as tk
 from tkinter import Event, messagebox
 from typing import Callable, TYPE_CHECKING
@@ -165,7 +166,8 @@ class GameScreen(MyScreen):
     def reset(self) -> None:
         """Reset the game"""
         self.matrix.reset()
-        self.newTile()
+        for _ in repeat(None, 2):
+            self.newTile()
         self.matrix.updateAvailableSpace()
         self.draw()
 
@@ -229,12 +231,20 @@ class SettingsScreen(MyScreen):
         self._win: tk.Entry
 
         self._win = tk.Entry(self, width=20)
-        self._win.grid(column=1, row=0)
-        tk.Label(self, text="Win at: ").grid(column=0, row=0)
+        self._win.grid(column=2, row=0)
+        tk.Label(self, text="Win at: ").grid(column=0, row=0, columnspan=2)
+
+        tk.Label(self, text="Set base color (0-255)").grid(column=0, row=1)
+        self._base_color: tk.Label = tk.Label(self, height=1, width=2, relief="groove")
+        self._base_color.grid(column=1, row=1)
+        self._base_color_entry: tk.Entry = tk.Entry(self, width=5)
+        self._base_color_entry.grid(column=2, row=1)
 
         self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=1)
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
+        self.grid_columnconfigure(2, weight=1)
 
     def _key(self, event: Event) -> None:
         key: str = event.keysym
@@ -256,7 +266,7 @@ class SettingsScreen(MyScreen):
         self.controller.setGameSettings(win)
 
     def _correctWinInput(self, user_input: str) -> int:
-        regex: str = r"^\d+(\.\d*)?$"
+        regex: str = r"^\d+(\.\d+)?$"
         if not bool(re.match(regex, user_input)):
             self._dialogBox("Input error", "Not a number")
             return self.controller.getWin()
