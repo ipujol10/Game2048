@@ -59,6 +59,12 @@ class Game(tk.Tk):
         """Get the Win parameter"""
         return self._frames[Screens.GAME].win
 
-    def setGameSettings(self, /, win: int) -> None:
+    def setGameSettings(self, /, win: int, base: int, start: float, end: float) -> None:
         """To be used when the settings have been done"""
         self._frames[Screens.GAME].win = win
+        self._frames[Screens.GAME].base_color = base
+        self._frames[Screens.GAME].start_color = start
+        self._frames[Screens.GAME].end_color = end
+        game = self._frames[Screens.GAME]
+        assert isinstance(game, GameScreen)
+        game.generateColors()

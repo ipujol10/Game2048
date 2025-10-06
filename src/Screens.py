@@ -24,6 +24,9 @@ class MyScreen(ABC, tk.Frame):
         tk.Frame.__init__(self, master=parent)
         self.controller: "Game" = controller
         self.win: int
+        self.base_color: int
+        self.start_color: float
+        self.end_color: float
 
     def bindKeyboard(self) -> None:
         """
@@ -59,9 +62,12 @@ class GameScreen(MyScreen):
         }
 
         self.win = 2048
+        self.base_color = 165
+        self.start_color = 100
+        self.end_color = 66.4
 
         self.gui_grid = self._generateTiles()
-        self._colors = self._generateColors(165, 100, 66.4)
+        self._colors = self.generateColors()
 
         self.reset()
 
@@ -85,7 +91,11 @@ class GameScreen(MyScreen):
                 tiles[i].append(tile)
         return tiles
 
-    def _generateColors(self, hue: int, start_lightness: float, end_lightness: float) -> dict[int, str]:
+    def generateColors(self) -> dict[int, str]:
+        """Generate the colors of the tiles"""
+        hue = self.base_color
+        start_lightness = self.start_color
+        end_lightness = self.end_color
         keys: list[int] = [0, 2]
         while keys[-1] < self.win:
             keys.append(keys[-1] * 2)
@@ -240,16 +250,16 @@ class SettingsScreen(MyScreen):
         self._base_color_entry: tk.Entry = tk.Entry(self, width=5)
         self._base_color_entry.grid(column=2, row=1)
 
-        tk.Label(self, text="Set start tone (0-255)??").grid(column=0, row=2)
+        tk.Label(self, text="Set start tone (0-100)").grid(column=0, row=2)
         self._start_color: tk.Label = tk.Label(self, height=1, width=2, relief="groove")
         self._start_color.grid(column=1, row=2)
-        self._start_color_entry: tk.Entry = tk.Entry(self, width=5)
+        self._start_color_entry: tk.Entry = tk.Entry(self, width=10)
         self._start_color_entry.grid(column=2, row=2)
 
-        tk.Label(self, text="Set end tone (0-255)??").grid(column=0, row=3)
+        tk.Label(self, text="Set end tone (0-100)").grid(column=0, row=3)
         self._end_color: tk.Label = tk.Label(self, height=1, width=2, relief="groove")
         self._end_color.grid(column=1, row=3)
-        self._end_color_entry: tk.Entry = tk.Entry(self, width=5)
+        self._end_color_entry: tk.Entry = tk.Entry(self, width=10)
         self._end_color_entry.grid(column=2, row=3)
 
         self.grid_rowconfigure(0, weight=1)
@@ -266,6 +276,9 @@ class SettingsScreen(MyScreen):
             case "Escape":
                 self.saveSettings()
                 self.controller.showScreen(Screens.MAIN_MENU)
+            case "Return":
+                self.saveSettings()
+                self.setSettings()
             case _:
                 pass
 
@@ -276,10 +289,16 @@ class SettingsScreen(MyScreen):
 
     def saveSettings(self) -> None:
         """Save the settings into game"""
-        win: int = self._correctWinInput(self._win.get())
-        self.controller.setGameSettings(win)
+        win: int = self._correctWinInputPower(self._win.get())
+        base: int = int(self._correctInput(self._base_color_entry.get()))
+        base = int(self._base_color_entry.get()) if base == -1 else base
+        start: float = self._correctInput(self._start_color_entry.get())
+        start = float(self._start_color_entry.get()) if start == -1 else start
+        end: float = self._correctInput(self._end_color_entry.get())
+        end = float(self._end_color_entry.get()) if end == -1 else end
+        self.controller.setGameSettings(win, base, start, end)
 
-    def _correctWinInput(self, user_input: str) -> int:
+    def _correctWinInputPower(self, user_input: str) -> int:
         regex: str = r"^\d+(\.\d+)?$"
         if not bool(re.match(regex, user_input)):
             self._dialogBox("Input error", "Not a number")
@@ -287,6 +306,13 @@ class SettingsScreen(MyScreen):
         number: int = int(float(user_input))
         log: int = int(math.log2(number))
         return 2**log
+
+    def _correctInput(self, user_input: str) -> float:
+        regex: str = r"^\d+(\.\d+)?$"
+        if not bool(re.match(regex, user_input)):
+            self._dialogBox("Input error", "Not a number")
+            return -1
+        return float(user_input)
 
     def _dialogBox(self, title: str, message: str) -> None:
         messagebox.showwarning(title=title, message=message)
