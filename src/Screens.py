@@ -231,12 +231,20 @@ class SettingsScreen(MyScreen):
         self._win: tk.Entry
 
         self._win = tk.Entry(self, width=20)
-        self._win.grid(column=1, row=0)
-        tk.Label(self, text="Win at: ").grid(column=0, row=0)
+        self._win.grid(column=2, row=0)
+        tk.Label(self, text="Win at: ").grid(column=0, row=0, columnspan=2)
+
+        tk.Label(self, text="Set base color (0-255)").grid(column=0, row=1)
+        self._base_color: tk.Label = tk.Label(self, height=1, width=2, relief="groove")
+        self._base_color.grid(column=1, row=1)
+        self._base_color_entry: tk.Entry = tk.Entry(self, width=5)
+        self._base_color_entry.grid(column=2, row=1)
 
         self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=1)
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
+        self.grid_columnconfigure(2, weight=1)
 
     def _key(self, event: Event) -> None:
         key: str = event.keysym
