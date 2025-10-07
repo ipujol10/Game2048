@@ -49,7 +49,7 @@ class Grid:
                     (x2, y2) = (x, scan) if vertical else (scan, y)
                     stp: int = 1 if positive else -1
                     (x3, y3) = (x, scan + stp) if vertical else (scan + stp, y)
-                    self._merge(x2, y2, x3, y3)
+                    moved = self._merge(x2, y2, x3, y3) or moved
                     for scan in range(scan_start, scan_end, scan_step):
                         (x2, y2) = (x, scan) if vertical else (scan, y)
                         (x3, y3) = (x, scan + stp) if vertical else (scan + stp, y)
@@ -60,7 +60,7 @@ class Grid:
                             self.grid[y2][x2] = number
                             moved = True
                             break
-                    self._merge(x2, y2, x3, y3)
+                    moved = self._merge(x2, y2, x3, y3) or moved
         return moved
 
     def inside(self, x: int, y: int) -> bool:
@@ -91,20 +91,20 @@ class Grid:
         self._empty_cells = sum(row.count(0) for row in self.grid)
         self.available_space = self._empty_cells > 0
 
-    def _merge(self, x1: int, y1: int, x2: int, y2: int) -> None:
+    def _merge(self, x1: int, y1: int, x2: int, y2: int) -> bool:
         if not self.inside(x2, y2):
-            return
+            return False
         current: int = self.grid[y1][x1]
         other: int = self.grid[y2][x2]
         if current != other:
-            return
+            return False
         self.grid[y1][x1] = 0
         self.grid[y2][x2] *= 2
         self._empty_cells += 1
         self.available_space = True
         if current == 2048:
             self.finished = True
-        return
+        return True
 
     def reset(self) -> None:
         """Resset board"""

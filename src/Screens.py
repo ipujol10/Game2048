@@ -11,7 +11,7 @@ from abc import ABC, abstractmethod
 import math
 import re
 from src import Grid
-from src.Utils import hsl2rgb, Directions, Screens
+from src.Utils import Color, Directions, Screens
 
 if TYPE_CHECKING:
     from Game import Game
@@ -50,7 +50,7 @@ class GameScreen(MyScreen):
 
         self.matrix: Grid.Grid = Grid.Grid()
         self.gui_grid: list[list[tk.Label]]
-        self._colors: dict[int, str]
+        self._colors: dict[int, Color]
 
         self.bind_all("<Key>", self._key)
         self._directions: list[str] = [el.name for el in Directions]
@@ -102,10 +102,10 @@ class GameScreen(MyScreen):
         steps: int = len(keys) - 1
         delta: float = (end_lightness - start_lightness) / steps
 
-        colors: dict[int, str] = {}
+        colors: dict[int, Color] = {}
         for i, key in enumerate(keys):
             lightness = start_lightness + delta * i
-            colors[key] = hsl2rgb(hue, 100, lightness)
+            colors[key] = Color(hue, 100, lightness)
         self._colors = colors
 
     def isEndgame(self) -> bool:
@@ -150,7 +150,9 @@ class GameScreen(MyScreen):
         for i in range(4):
             for j in range(4):
                 value: int = self.matrix.grid[i][j]
-                self.gui_grid[i][j].config(text=("" if value == 0 else str(value)), background=self._colors[value])
+                self.gui_grid[i][j].config(
+                    text=("" if value == 0 else str(value)), background=self._colors[value].rgb()
+                )
 
     def _key(self, event: Event) -> None:
         key: str = event.keysym
@@ -290,15 +292,15 @@ class SettingsScreen(MyScreen):
 
         self._base_color_entry.delete(0, tk.END)
         self._base_color_entry.insert(0, str(base))
-        self._base_color.config(background=hsl2rgb(base, 100, 50))
+        self._base_color.config(background=Color(base, 100, 50).rgb())
 
         self._start_color_entry.delete(0, tk.END)
         self._start_color_entry.insert(0, str(start))
-        self._start_color.config(background=hsl2rgb(base, 100, start))
+        self._start_color.config(background=Color(base, 100, start).rgb())
 
         self._end_color_entry.delete(0, tk.END)
         self._end_color_entry.insert(0, str(end))
-        self._end_color.config(background=hsl2rgb(base, 100, end))
+        self._end_color.config(background=Color(base, 100, end).rgb())
 
     def saveSettings(self) -> None:
         """Save the settings into game"""
