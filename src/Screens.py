@@ -284,13 +284,26 @@ class SettingsScreen(MyScreen):
 
     def setSettings(self) -> None:
         """Set the settings screen with the current values"""
+        win, base, start, end = self.controller.getSettingsParameters()
         self._win.delete(0, tk.END)
-        self._win.insert(0, str(self.controller.getWin()))
+        self._win.insert(0, str(win))
+
+        self._base_color_entry.delete(0, tk.END)
+        self._base_color_entry.insert(0, str(base))
+        self._base_color.config(background=hsl2rgb(base, 100, 50))
+
+        self._start_color_entry.delete(0, tk.END)
+        self._start_color_entry.insert(0, str(start))
+        self._start_color.config(background=hsl2rgb(base, 100, start))
+
+        self._end_color_entry.delete(0, tk.END)
+        self._end_color_entry.insert(0, str(end))
+        self._end_color.config(background=hsl2rgb(base, 100, end))
 
     def saveSettings(self) -> None:
         """Save the settings into game"""
         win: int = self._correctWinInputPower(self._win.get())
-        base: int = int(self._correctInput(self._base_color_entry.get()))
+        base: int = int(self._correctInput(self._base_color_entry.get(), 255))
         base = int(self._base_color_entry.get()) if base == -1 else base
         start: float = self._correctInput(self._start_color_entry.get())
         start = float(self._start_color_entry.get()) if start == -1 else start
@@ -302,17 +315,17 @@ class SettingsScreen(MyScreen):
         regex: str = r"^\d+(\.\d+)?$"
         if not bool(re.match(regex, user_input)):
             self._dialogBox("Input error", "Not a number")
-            return self.controller.getWin()
+            return self.controller.getSettingsParameters()[0]
         number: int = int(float(user_input))
         log: int = int(math.log2(number))
         return 2**log
 
-    def _correctInput(self, user_input: str) -> float:
+    def _correctInput(self, user_input: str, limit: int = 100) -> float:
         regex: str = r"^\d+(\.\d+)?$"
         if not bool(re.match(regex, user_input)):
             self._dialogBox("Input error", "Not a number")
             return -1
-        return float(user_input)
+        return min(max(float(user_input), 0), limit)
 
     def _dialogBox(self, title: str, message: str) -> None:
         messagebox.showwarning(title=title, message=message)
