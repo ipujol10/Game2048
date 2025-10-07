@@ -24,6 +24,9 @@ class MyScreen(ABC, tk.Frame):
         tk.Frame.__init__(self, master=parent)
         self.controller: "Game" = controller
         self.win: int
+        self.base_color: int
+        self.start_color: float
+        self.end_color: float
 
     def bindKeyboard(self) -> None:
         """
@@ -59,9 +62,12 @@ class GameScreen(MyScreen):
         }
 
         self.win = 2048
+        self.base_color = 165
+        self.start_color = 100
+        self.end_color = 66.4
 
         self.gui_grid = self._generateTiles()
-        self._colors = self._generateColors(165, 100, 66.4)
+        self.generateColors()
 
         self.reset()
 
@@ -85,7 +91,11 @@ class GameScreen(MyScreen):
                 tiles[i].append(tile)
         return tiles
 
-    def _generateColors(self, hue: int, start_lightness: float, end_lightness: float) -> dict[int, str]:
+    def generateColors(self) -> None:
+        """Generate the colors of the tiles"""
+        hue = self.base_color
+        start_lightness = self.start_color
+        end_lightness = self.end_color
         keys: list[int] = [0, 2]
         while keys[-1] < self.win:
             keys.append(keys[-1] * 2)
@@ -96,7 +106,7 @@ class GameScreen(MyScreen):
         for i, key in enumerate(keys):
             lightness = start_lightness + delta * i
             colors[key] = hsl2rgb(hue, 100, lightness)
-        return colors
+        self._colors = colors
 
     def isEndgame(self) -> bool:
         """
@@ -240,8 +250,22 @@ class SettingsScreen(MyScreen):
         self._base_color_entry: tk.Entry = tk.Entry(self, width=5)
         self._base_color_entry.grid(column=2, row=1)
 
+        tk.Label(self, text="Set start tone (0-100)").grid(column=0, row=2)
+        self._start_color: tk.Label = tk.Label(self, height=1, width=2, relief="groove")
+        self._start_color.grid(column=1, row=2)
+        self._start_color_entry: tk.Entry = tk.Entry(self, width=10)
+        self._start_color_entry.grid(column=2, row=2)
+
+        tk.Label(self, text="Set end tone (0-100)").grid(column=0, row=3)
+        self._end_color: tk.Label = tk.Label(self, height=1, width=2, relief="groove")
+        self._end_color.grid(column=1, row=3)
+        self._end_color_entry: tk.Entry = tk.Entry(self, width=10)
+        self._end_color_entry.grid(column=2, row=3)
+
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
+        self.grid_rowconfigure(2, weight=1)
+        self.grid_rowconfigure(3, weight=1)
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure(2, weight=1)
@@ -252,27 +276,56 @@ class SettingsScreen(MyScreen):
             case "Escape":
                 self.saveSettings()
                 self.controller.showScreen(Screens.MAIN_MENU)
+            case "Return":
+                self.saveSettings()
+                self.setSettings()
             case _:
                 pass
 
     def setSettings(self) -> None:
         """Set the settings screen with the current values"""
+        win, base, start, end = self.controller.getSettingsParameters()
         self._win.delete(0, tk.END)
-        self._win.insert(0, str(self.controller.getWin()))
+        self._win.insert(0, str(win))
+
+        self._base_color_entry.delete(0, tk.END)
+        self._base_color_entry.insert(0, str(base))
+        self._base_color.config(background=hsl2rgb(base, 100, 50))
+
+        self._start_color_entry.delete(0, tk.END)
+        self._start_color_entry.insert(0, str(start))
+        self._start_color.config(background=hsl2rgb(base, 100, start))
+
+        self._end_color_entry.delete(0, tk.END)
+        self._end_color_entry.insert(0, str(end))
+        self._end_color.config(background=hsl2rgb(base, 100, end))
 
     def saveSettings(self) -> None:
         """Save the settings into game"""
-        win: int = self._correctWinInput(self._win.get())
-        self.controller.setGameSettings(win)
+        win: int = self._correctWinInputPower(self._win.get())
+        base: int = int(self._correctInput(self._base_color_entry.get(), 255))
+        base = int(self._base_color_entry.get()) if base == -1 else base
+        start: float = self._correctInput(self._start_color_entry.get())
+        start = float(self._start_color_entry.get()) if start == -1 else start
+        end: float = self._correctInput(self._end_color_entry.get())
+        end = float(self._end_color_entry.get()) if end == -1 else end
+        self.controller.setGameSettings(win, base, start, end)
 
-    def _correctWinInput(self, user_input: str) -> int:
+    def _correctWinInputPower(self, user_input: str) -> int:
         regex: str = r"^\d+(\.\d+)?$"
         if not bool(re.match(regex, user_input)):
             self._dialogBox("Input error", "Not a number")
-            return self.controller.getWin()
+            return self.controller.getSettingsParameters()[0]
         number: int = int(float(user_input))
         log: int = int(math.log2(number))
         return 2**log
+
+    def _correctInput(self, user_input: str, limit: int = 100) -> float:
+        regex: str = r"^\d+(\.\d+)?$"
+        if not bool(re.match(regex, user_input)):
+            self._dialogBox("Input error", "Not a number")
+            return -1
+        return min(max(float(user_input), 0), limit)
 
     def _dialogBox(self, title: str, message: str) -> None:
         messagebox.showwarning(title=title, message=message)
