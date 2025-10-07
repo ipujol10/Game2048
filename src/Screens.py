@@ -67,7 +67,7 @@ class GameScreen(MyScreen):
         self.end_color = 66.4
 
         self.gui_grid = self._generateTiles()
-        self._colors = self.generateColors()
+        self.generateColors()
 
         self.reset()
 
@@ -91,7 +91,7 @@ class GameScreen(MyScreen):
                 tiles[i].append(tile)
         return tiles
 
-    def generateColors(self) -> dict[int, str]:
+    def generateColors(self) -> None:
         """Generate the colors of the tiles"""
         hue = self.base_color
         start_lightness = self.start_color
@@ -106,7 +106,7 @@ class GameScreen(MyScreen):
         for i, key in enumerate(keys):
             lightness = start_lightness + delta * i
             colors[key] = hsl2rgb(hue, 100, lightness)
-        return colors
+        self._colors = colors
 
     def isEndgame(self) -> bool:
         """
