@@ -4,7 +4,7 @@ File with the different screens of the game
 
 from itertools import repeat
 import tkinter as tk
-from tkinter import Event, messagebox
+from tkinter import Event, messagebox, PhotoImage
 from typing import Callable, TYPE_CHECKING
 from random import choice, random
 from abc import ABC, abstractmethod
@@ -244,30 +244,34 @@ class SettingsScreen(MyScreen):
 
         self._win = tk.Entry(self, width=20)
         self._win.grid(column=2, row=0)
-        tk.Label(self, text="Win at: ").grid(column=0, row=0, columnspan=2)
+        tk.Label(self, text="Win at:").grid(column=0, row=0, columnspan=2)
 
-        tk.Label(self, text="Set base color (0-255)").grid(column=0, row=1)
+        self._color_image = PhotoImage(file="data/hue.png")
+        tk.Label(self, image=self._color_image).grid(row=1, column=0, columnspan=3)
+
+        tk.Label(self, text="Set base color (0-255)").grid(column=0, row=2)
         self._base_color: tk.Label = tk.Label(self, height=1, width=2, relief="groove")
-        self._base_color.grid(column=1, row=1)
+        self._base_color.grid(column=1, row=2)
         self._base_color_entry: tk.Entry = tk.Entry(self, width=5)
-        self._base_color_entry.grid(column=2, row=1)
+        self._base_color_entry.grid(column=2, row=2)
 
-        tk.Label(self, text="Set start tone (0-100)").grid(column=0, row=2)
+        tk.Label(self, text="Set start tone (0-100)").grid(column=0, row=3)
         self._start_color: tk.Label = tk.Label(self, height=1, width=2, relief="groove")
-        self._start_color.grid(column=1, row=2)
+        self._start_color.grid(column=1, row=3)
         self._start_color_entry: tk.Entry = tk.Entry(self, width=10)
-        self._start_color_entry.grid(column=2, row=2)
+        self._start_color_entry.grid(column=2, row=3)
 
-        tk.Label(self, text="Set end tone (0-100)").grid(column=0, row=3)
+        tk.Label(self, text="Set end tone (0-100)").grid(column=0, row=4)
         self._end_color: tk.Label = tk.Label(self, height=1, width=2, relief="groove")
-        self._end_color.grid(column=1, row=3)
+        self._end_color.grid(column=1, row=4)
         self._end_color_entry: tk.Entry = tk.Entry(self, width=10)
-        self._end_color_entry.grid(column=2, row=3)
+        self._end_color_entry.grid(column=2, row=4)
 
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
         self.grid_rowconfigure(2, weight=1)
         self.grid_rowconfigure(3, weight=1)
+        self.grid_rowconfigure(4, weight=1)
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure(2, weight=1)
