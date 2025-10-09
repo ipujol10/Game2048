@@ -2,32 +2,38 @@
 
 import tkinter as tk
 from types import TracebackType
-from tkinter import Event
-from typing import Callable
-from random import random, choice
 from src import Grid
-from src.Utils import Directions
+from src.Screens import GameScreen, MainMenuScreen, MyScreen, SettingsScreen
+from src.Utils import Screens
 
 
-class Game:
+class Game(tk.Tk):
     """Game class where all the magic happens"""
 
     def __init__(self) -> None:
+        tk.Tk.__init__(self)
         self.grid: Grid.Grid = Grid.Grid()
-        self.root: tk.Tk = tk.Tk()
-        self.is_root_alive: bool = True
-        self.root.bind_all("<Key>", self._key)
-        self._directions: list[str] = [el.name for el in Directions]
-        self._dir_func: dict[str, Callable[[], bool]] = {
-            direction: function
-            for direction, function in zip(
-                self._directions, [self.grid.up, self.grid.left, self.grid.down, self.grid.right]
-            )
-        }
+        self.title("2048")
+        self.mainframe: tk.Frame = tk.Frame(self)
+        self.mainframe.grid(column=0, row=0, sticky=tk.N + tk.W + tk.E + tk.S)
+        self._current_frame: tk.Frame
+        self._frames: dict[Screens, MyScreen] = {}
+        for i, f in enumerate((GameScreen, MainMenuScreen, SettingsScreen)):
+            frame = f(parent=self.mainframe, controller=self)
+            self._frames[Screens(i)] = frame
 
-        self._newTile()
-        self.grid.updateAvailableSpace()
-        self.grid.draw()
+            frame.grid(row=0, column=0, sticky="nsew")
+
+        self.showScreen(Screens.MAIN_MENU)
+        self.is_root_alive: bool = True
+
+    def showScreen(self, screen: Screens) -> None:
+        """Show a screen"""
+        self._current_frame = self._frames[screen]
+        if isinstance(self._current_frame, SettingsScreen):
+            self._current_frame.setSettings()
+        self._current_frame.bindKeyboard()
+        self._current_frame.tkraise()  # type: ignore
 
     def __enter__(self) -> "Game":
         return self
@@ -36,56 +42,39 @@ class Game:
         self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None
     ) -> None:
         if self.is_root_alive:
-            self.root.destroy()
+            self.destroy()
 
-    def _destroy(self) -> None:
+    def destroy(self) -> None:
+        self.mainframe.tkraise()  # type:ignore
         self.is_root_alive = False
-        self.root.destroy()
+        self.quit()
 
-    def _key(self, event: Event) -> None:
-        key: str = event.keysym
-        moved: bool = False
-        match key:
-            case "Escape":
-                self._destroy()
-            case val if val in self._directions:
-                while self._dir_func[val]():
-                    moved = True
-            case _:
-                pass
+    def reset(self) -> None:
+        """Reset the game"""
+        frame = self._frames[Screens.GAME]
+        assert isinstance(frame, GameScreen)
+        frame.reset()
 
-        if self._isEndgame():
-            self._destroy()
+    def getSettingsParameters(self) -> tuple[int, int, float, float]:
+        """
+        Get the Win parameter
 
-        if moved:
-            self._newTile()
-        self.grid.draw()
+        Returns:
+            tuple[int, int, float, float]: win, base_color, start_tone, end_tone
+        """
+        return (
+            self._frames[Screens.GAME].win,
+            self._frames[Screens.GAME].base_color,
+            self._frames[Screens.GAME].start_color,
+            self._frames[Screens.GAME].end_color,
+        )
 
-    def _isEndgame(self) -> bool:
-        if any(2048 in row for row in self.grid.grid):
-            return True
-        if any(0 in row for row in self.grid.grid):
-            return False
-        for y in range(self.grid.size):
-            for x in range(self.grid.size):
-                if self.grid.inside(x + 1, y):
-                    if self.grid[y][x + 1] == self.grid[y][x]:
-                        return False
-                if self.grid.inside(x, y + 1):
-                    if self.grid[y + 1][x] == self.grid[y][x]:
-                        return False
-        return True
-
-    def _newTile(self) -> None:
-        if not self.grid.available_space:
-            return
-
-        empty_cells: list[tuple[int, int]] = []
-        for y in range(self.grid.size):
-            for x in range(self.grid.size):
-                if self.grid.grid[y][x] == 0:
-                    empty_cells.append((x, y))
-        if not empty_cells:
-            return
-        x, y = choice(empty_cells)
-        self.grid.grid[y][x] = 2 if random() < 0.8 else 4
+    def setGameSettings(self, /, win: int, base: int, start: float, end: float) -> None:
+        """To be used when the settings have been done"""
+        self._frames[Screens.GAME].win = win
+        self._frames[Screens.GAME].base_color = base
+        self._frames[Screens.GAME].start_color = start
+        self._frames[Screens.GAME].end_color = end
+        game = self._frames[Screens.GAME]
+        assert isinstance(game, GameScreen)
+        game.generateColors()

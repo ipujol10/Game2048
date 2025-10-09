@@ -1,34 +1,20 @@
 """Module to have the grid and do all the operations"""
 
-from itertools import repeat
-
 
 class Grid:
     """Grid class"""
 
     def __init__(self) -> None:
         self.size: int = 4
-        self.grid: list[list[int]] = [[0 for _ in repeat(None, self.size)] for _ in repeat(None, self.size)]
+        self.grid: list[list[int]]
+        self._empty_cells: int
+        self.available_space: bool
+        self.finished: bool
 
-        self._separator: str = " " + "---- " * 4
-
-        self._empty_cells: int = self.size * self.size
-        self.available_space: bool = True
-        self.finished: bool = False
+        self.reset()
 
     def __getitem__(self, key: int) -> list[int]:
         return self.grid[key]
-
-    def draw(self) -> None:
-        """Draw the current state of the grid into the terminal"""
-        print(self._separator)
-        for y in range(self.size):
-            print("|", end="")
-            for x in range(self.size):
-                n: int = self.grid[y][x]
-                n_s: str = " " if n == 0 else str(n)
-                print(f"{n_s:^4}|", end="")
-            print("\n" + self._separator)
 
     def _move(self, *, positive: bool, vertical: bool) -> bool:
         """
@@ -63,7 +49,7 @@ class Grid:
                     (x2, y2) = (x, scan) if vertical else (scan, y)
                     stp: int = 1 if positive else -1
                     (x3, y3) = (x, scan + stp) if vertical else (scan + stp, y)
-                    self._merge(x2, y2, x3, y3)
+                    moved = self._merge(x2, y2, x3, y3) or moved
                     for scan in range(scan_start, scan_end, scan_step):
                         (x2, y2) = (x, scan) if vertical else (scan, y)
                         (x3, y3) = (x, scan + stp) if vertical else (scan + stp, y)
@@ -74,7 +60,7 @@ class Grid:
                             self.grid[y2][x2] = number
                             moved = True
                             break
-                    self._merge(x2, y2, x3, y3)
+                    moved = self._merge(x2, y2, x3, y3) or moved
         return moved
 
     def inside(self, x: int, y: int) -> bool:
@@ -105,17 +91,24 @@ class Grid:
         self._empty_cells = sum(row.count(0) for row in self.grid)
         self.available_space = self._empty_cells > 0
 
-    def _merge(self, x1: int, y1: int, x2: int, y2: int) -> None:
+    def _merge(self, x1: int, y1: int, x2: int, y2: int) -> bool:
         if not self.inside(x2, y2):
-            return
+            return False
         current: int = self.grid[y1][x1]
         other: int = self.grid[y2][x2]
         if current != other:
-            return
+            return False
         self.grid[y1][x1] = 0
         self.grid[y2][x2] *= 2
         self._empty_cells += 1
         self.available_space = True
         if current == 2048:
             self.finished = True
-        return
+        return True
+
+    def reset(self) -> None:
+        """Resset board"""
+        self.grid = [[0 for _ in range(self.size)] for _ in range(self.size)]
+        self._empty_cells = self.size * self.size
+        self.available_space = True
+        self.finished = False
