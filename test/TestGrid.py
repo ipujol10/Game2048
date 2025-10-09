@@ -240,6 +240,26 @@ class TestGridMove(unittest.TestCase):
         with self.subTest(msg="2 lines, 4 iteration"):
             self.assertEqual(grid.grid, end)
 
+        start = self._generateGrid()
+        start[0][0] = 2
+        start[0][1] = 2
+        start[0][3] = 4
+        end = self._generateGrid()
+        end[0][2] = 4
+        end[0][3] = 4
+        grid.grid = copy.deepcopy(start)
+        grid.right()
+        with self.subTest(msg="Move before merge right"):
+            self.assertEqual(grid.grid, end)
+
+        end = self._generateGrid()
+        end[0][0] = 4
+        end[0][1] = 4
+        grid.grid = copy.deepcopy(start)
+        grid.left()
+        with self.subTest(msg="Move before merge left"):
+            self.assertEqual(grid.grid, end)
+
 
 class TestGrid(unittest.TestCase):
     """Test the rest of the class methods"""
