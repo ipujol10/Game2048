@@ -260,6 +260,66 @@ class TestGridMove(unittest.TestCase):
         with self.subTest(msg="Move before merge left"):
             self.assertEqual(grid.grid, end)
 
+        start = self._generateGrid()
+        start[0][0] = 4
+        start[0][2] = 2
+        start[0][3] = 2
+        end = self._generateGrid()
+        end[0][2] = 4
+        end[0][3] = 4
+        grid.grid = copy.deepcopy(start)
+        grid.right()
+        with self.subTest(msg="Move before merge right 2"):
+            self.assertEqual(grid.grid, end)
+
+        end = self._generateGrid()
+        end[0][0] = 4
+        end[0][1] = 4
+        grid.grid = copy.deepcopy(start)
+        grid.left()
+        with self.subTest(msg="Move before merge left 2"):
+            self.assertEqual(grid.grid, end)
+
+        start = self._generateGrid()
+        start[0][0] = 2
+        start[1][0] = 2
+        start[3][0] = 4
+        end = self._generateGrid()
+        end[0][0] = 4
+        end[1][0] = 4
+        grid.grid = copy.deepcopy(start)
+        grid.up()
+        with self.subTest(msg="Move before merge up"):
+            self.assertEqual(grid.grid, end)
+
+        end = self._generateGrid()
+        end[2][0] = 4
+        end[3][0] = 4
+        grid.grid = copy.deepcopy(start)
+        grid.down()
+        with self.subTest(msg="Move before merge down"):
+            self.assertEqual(grid.grid, end)
+
+        start = self._generateGrid()
+        start[0][0] = 4
+        start[2][0] = 2
+        start[3][0] = 2
+        end = self._generateGrid()
+        end[0][0] = 4
+        end[1][0] = 4
+        grid.grid = copy.deepcopy(start)
+        grid.up()
+        with self.subTest(msg="Move before merge up 2"):
+            self.assertEqual(grid.grid, end)
+
+        end = self._generateGrid()
+        end[2][0] = 4
+        end[3][0] = 4
+        grid.grid = copy.deepcopy(start)
+        grid.down()
+        with self.subTest(msg="Move before merge down 2"):
+            self.assertEqual(grid.grid, end)
+
 
 class TestGrid(unittest.TestCase):
     """Test the rest of the class methods"""
