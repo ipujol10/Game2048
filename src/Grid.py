@@ -41,6 +41,8 @@ class Grid:
 
         moved: bool = False
         for i in range(start, finish, step):
+            limit_x: int = self.size if positive else -1
+            limit_y: int = self.size if positive else -1
             for j in range(start + step, finish, step):
                 (x, y) = (i, j) if vertical else (j, i)
                 if (number := self.grid[y][x]) != 0:
@@ -49,7 +51,11 @@ class Grid:
                     (x2, y2) = (x, scan) if vertical else (scan, y)
                     stp: int = 1 if positive else -1
                     (x3, y3) = (x, scan + stp) if vertical else (scan + stp, y)
-                    moved = self._merge(x2, y2, x3, y3) or moved
+                    merged: bool = self._merge(x2, y2, x3, y3, limit_x, limit_y)
+                    if merged:
+                        limit_x = x2
+                        limit_y = y2
+                    moved = merged or moved
                     for scan in range(scan_start, scan_end, scan_step):
                         (x2, y2) = (x, scan) if vertical else (scan, y)
                         (x3, y3) = (x, scan + stp) if vertical else (scan + stp, y)
@@ -60,7 +66,7 @@ class Grid:
                             self.grid[y2][x2] = number
                             moved = True
                             break
-                    moved = self._merge(x2, y2, x3, y3) or moved
+                    moved = self._merge(x2, y2, x3, y3, limit_x, limit_y) or moved
         return moved
 
     def inside(self, x: int, y: int) -> bool:
@@ -91,8 +97,12 @@ class Grid:
         self._empty_cells = sum(row.count(0) for row in self.grid)
         self.available_space = self._empty_cells > 0
 
-    def _merge(self, x1: int, y1: int, x2: int, y2: int) -> bool:
+    def _merge(self, x1: int, y1: int, x2: int, y2: int, limit_x: int, limit_y: int) -> bool:
         if not self.inside(x2, y2):
+            return False
+        if x1 == x2 and limit_y <= y1 < y2 or y2 < y1 <= limit_y:
+            return False
+        if y1 == y2 and limit_x <= x1 < x2 or x2 < x1 <= limit_x:
             return False
         current: int = self.grid[y1][x1]
         other: int = self.grid[y2][x2]
