@@ -5,13 +5,13 @@ File with the different screens of the game
 from itertools import repeat
 import tkinter as tk
 from tkinter import Event, messagebox, PhotoImage
-from typing import Callable, TYPE_CHECKING
+from typing import Callable, TYPE_CHECKING, Any
 from random import choice, random
 from abc import ABC, abstractmethod
 import math
 import re
 from src import Grid
-from src.Utils import Color, Directions, Screens
+from src.Utils import Color, Directions, Screens, Popouts
 
 if TYPE_CHECKING:
     from Game import Game
@@ -250,19 +250,24 @@ class SettingsScreen(MyScreen):
         tk.Label(self, image=self._color_image).grid(row=1, column=0, columnspan=3)
 
         tk.Label(self, text="Set base color (0-255)").grid(column=0, row=2)
-        self._base_color: tk.Button = tk.Button(self, height=1, width=2)
+        self._base_color: tk.Button = tk.Button(
+            self,
+            height=1,
+            width=2,
+            command=lambda: self._popout(Popouts.BASE),
+        )
         self._base_color.grid(column=1, row=2)
         self._base_color_entry: tk.Entry = tk.Entry(self, width=5)
         self._base_color_entry.grid(column=2, row=2)
 
         tk.Label(self, text="Set start tone (0-100)").grid(column=0, row=3)
-        self._start_color: tk.Button = tk.Button(self, height=1, width=2)
+        self._start_color: tk.Button = tk.Button(self, height=1, width=2, command=lambda: self._popout(Popouts.START))
         self._start_color.grid(column=1, row=3)
         self._start_color_entry: tk.Entry = tk.Entry(self, width=10)
         self._start_color_entry.grid(column=2, row=3)
 
         tk.Label(self, text="Set end tone (0-100)").grid(column=0, row=4)
-        self._end_color: tk.Button = tk.Button(self, height=1, width=2)
+        self._end_color: tk.Button = tk.Button(self, height=1, width=2, command=lambda: self._popout(Popouts.END))
         self._end_color.grid(column=1, row=4)
         self._end_color_entry: tk.Entry = tk.Entry(self, width=10)
         self._end_color_entry.grid(column=2, row=4)
@@ -335,3 +340,32 @@ class SettingsScreen(MyScreen):
 
     def _dialogBox(self, title: str, message: str) -> None:
         messagebox.showwarning(title=title, message=message)
+
+    def _popout(self, pop_type: Popouts) -> Any:
+        SelectColor(self.controller, pop_type.name.capitalize())
+
+
+class SelectColor(tk.Toplevel):
+    """Create a new window to select the colors with the mouse"""
+
+    _instance = None
+
+    def __new__(cls, master: "Game", title: str) -> "SelectColor":
+        if cls._instance is None:
+            cls._instance = super(SelectColor, cls).__new__(cls)
+            cls._instance.master = master
+        return cls._instance
+
+    def __init__(self, master: "Game", title: str) -> None:
+        tk.Toplevel.__init__(self, master=master)
+        self._setupWindow(title)
+
+    def _setupWindow(self, title: str) -> None:
+        self.title(title)
+        self.geometry("550x150")
+
+        self.protocol("WM_DELETE_WINDOW", self._onClose)
+
+    def _onClose(self):
+        self._instance = None
+        self.destroy()
