@@ -342,7 +342,7 @@ class SettingsScreen(MyScreen):
         messagebox.showwarning(title=title, message=message)
 
     def _popout(self, pop_type: Popouts) -> Any:
-        SelectColor.getInstance(self.controller, pop_type.name.capitalize())
+        SelectColor.getInstance(self.controller, pop_type)
 
 
 class SelectColor(tk.Toplevel):
@@ -350,11 +350,12 @@ class SelectColor(tk.Toplevel):
 
     _instance = None
 
-    def __init__(self, master: "Game", title: str) -> None:
+    def __init__(self, master: "Game", pop_type: Popouts) -> None:
         if SelectColor._instance is not None:
             raise ValueError("Already exists!")
         tk.Toplevel.__init__(self, master=master)
-        self._setupWindow(title)
+        self.type: Popouts = pop_type
+        self._setupWindow(pop_type.name.capitalize())
 
     def _setupWindow(self, title: str) -> None:
         self.title(title)
@@ -367,8 +368,9 @@ class SelectColor(tk.Toplevel):
         self.destroy()
 
     @staticmethod
-    def getInstance(master: "Game", title: str) -> "SelectColor":
+    def getInstance(master: "Game", pop_type: Popouts) -> "SelectColor":
         """Get the window instance if it exists or create one if not"""
         if SelectColor._instance is None:
-            SelectColor._instance = SelectColor(master, title)
+            SelectColor._instance = SelectColor(master, pop_type)
+        SelectColor._instance.focus()
         return SelectColor._instance

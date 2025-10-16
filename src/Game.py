@@ -57,7 +57,7 @@ class Game(tk.Tk):
 
     def getSettingsParameters(self) -> tuple[int, int, float, float]:
         """
-        Get the Win parameter
+        Get the settings parameters
 
         Returns:
             tuple[int, int, float, float]: win, base_color, start_tone, end_tone
