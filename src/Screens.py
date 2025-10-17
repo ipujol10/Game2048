@@ -375,6 +375,7 @@ class SelectColor(tk.Toplevel):
         self._selection_image: PhotoImage = PhotoImage(file="data/click_image.png").zoom(2, 2)
         self._width = self._selection_image.width()
         self._height = self._selection_image.height()
+        self.resizable(width=False, height=False)
 
         self._setWindow(master)
         self._setupWindow()

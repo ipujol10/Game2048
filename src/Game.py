@@ -27,6 +27,8 @@ class Game(tk.Tk):
         self.showScreen(Screens.MAIN_MENU)
         self.is_root_alive: bool = True
 
+        self.resizable(width=False, height=False)
+
     def showScreen(self, screen: Screens) -> None:
         """Show a screen"""
         self._current_frame = self._frames[screen]
