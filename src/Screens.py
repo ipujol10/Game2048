@@ -299,17 +299,7 @@ class SettingsScreen(MyScreen):
         self._win.delete(0, tk.END)
         self._win.insert(0, str(win))
 
-        self._base_color_entry.delete(0, tk.END)
-        self._base_color_entry.insert(0, str(base))
-        self._base_color.config(background=Color(base, 100, 50).rgb())
-
-        self._start_color_entry.delete(0, tk.END)
-        self._start_color_entry.insert(0, str(start))
-        self._start_color.config(background=Color(base, 100, start).rgb())
-
-        self._end_color_entry.delete(0, tk.END)
-        self._end_color_entry.insert(0, str(end))
-        self._end_color.config(background=Color(base, 100, end).rgb())
+        self.setColors(base, start, end)
 
     def saveSettings(self) -> None:
         """Save the settings into game"""
@@ -342,7 +332,21 @@ class SettingsScreen(MyScreen):
         messagebox.showwarning(title=title, message=message)
 
     def _popout(self, pop_type: Popouts) -> Any:
-        SelectColor.getInstance(self.controller, pop_type)
+        SelectColor.getInstance(self.controller, self, pop_type)
+
+    def setColors(self, base: int, start: float, end: float) -> None:
+        """Set the values and color buttons"""
+        self._base_color_entry.delete(0, tk.END)
+        self._base_color_entry.insert(0, str(base))
+        self._base_color.config(background=Color(base, 100, 50).rgb())
+
+        self._start_color_entry.delete(0, tk.END)
+        self._start_color_entry.insert(0, str(start))
+        self._start_color.config(background=Color(base, 100, start).rgb())
+
+        self._end_color_entry.delete(0, tk.END)
+        self._end_color_entry.insert(0, str(end))
+        self._end_color.config(background=Color(base, 100, end).rgb())
 
 
 class SelectColor(tk.Toplevel):
@@ -350,27 +354,74 @@ class SelectColor(tk.Toplevel):
 
     _instance = None
 
-    def __init__(self, master: "Game", pop_type: Popouts) -> None:
+    def __init__(self, master: "Game", settings_screen: SettingsScreen, pop_type: Popouts) -> None:
         if SelectColor._instance is not None:
             raise ValueError("Already exists!")
         tk.Toplevel.__init__(self, master=master)
-        self.type: Popouts = pop_type
-        self._setupWindow(pop_type.name.capitalize())
+        self._win: int
+        self._base: int
+        self._start: float
+        self._end: float
+        self._image: tk.Label
 
-    def _setupWindow(self, title: str) -> None:
-        self.title(title)
-        self.geometry("550x150")
+        self._settings: SettingsScreen = settings_screen
+        self.type: Popouts = pop_type
+        self._set: dict[Popouts, Callable[[], None]] = {
+            t: func for t, func in zip(Popouts, (self._setBaseWindow, self._setStartWindow, self._setEndWindow))
+        }
+        self._get: dict[Popouts, Callable[[int], None]] = {
+            t: func for t, func in zip(Popouts, (self._getBaseWindow, self._getStartWindow, self._getEndWindow))
+        }
+        self._selection_image: PhotoImage = PhotoImage(file="data/click_image.png").zoom(2, 2)
+        self._width = self._selection_image.width()
+        self._height = self._selection_image.height()
+
+        self._setWindow(master)
+        self._setupWindow()
+        self.bind("<Button 1>", self._saveCoordinates)
+
+    def _setupWindow(self) -> None:
+        self.title(self.type.name.capitalize())
+        self.geometry(f"{self._selection_image.width()}x{self._selection_image.height()}")
 
         self.protocol("WM_DELETE_WINDOW", self._onClose)
+        self._set[self.type]()
 
     def _onClose(self):
         SelectColor._instance = None
         self.destroy()
 
     @staticmethod
-    def getInstance(master: "Game", pop_type: Popouts) -> "SelectColor":
+    def getInstance(master: "Game", settings_screen: SettingsScreen, pop_type: Popouts) -> "SelectColor":
         """Get the window instance if it exists or create one if not"""
         if SelectColor._instance is None:
-            SelectColor._instance = SelectColor(master, pop_type)
+            SelectColor._instance = SelectColor(master, settings_screen, pop_type)
         SelectColor._instance.focus()
         return SelectColor._instance
+
+    def _saveCoordinates(self, event: Event) -> None:
+        self._get[self.type](event.x)
+        self._onClose()
+
+    def _setBaseWindow(self) -> None:
+        self._image = tk.Label(self, image=self._selection_image)
+        self._image.pack()
+
+    def _setStartWindow(self) -> None:
+        raise NotImplementedError
+
+    def _setEndWindow(self) -> None:
+        raise NotImplementedError
+
+    def _setWindow(self, controller: "Game") -> None:
+        self._win, self._base, self._start, self._end = controller.getSettingsParameters()
+
+    def _getBaseWindow(self, x: int) -> None:
+        base: int = int(x / self._width * 255)
+        self._settings.setColors(base, self._start, self._end)
+
+    def _getStartWindow(self, x: int) -> None:
+        raise NotImplementedError
+
+    def _getEndWindow(self, x: int) -> None:
+        raise NotImplementedError
