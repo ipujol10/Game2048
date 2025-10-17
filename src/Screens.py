@@ -246,37 +246,33 @@ class SettingsScreen(MyScreen):
         self._win.grid(column=2, row=0)
         tk.Label(self, text="Win at:").grid(column=0, row=0, columnspan=2)
 
-        self._color_image = PhotoImage(file="data/hue.png")
-        tk.Label(self, image=self._color_image).grid(row=1, column=0, columnspan=3)
-
-        tk.Label(self, text="Set base color (0-255)").grid(column=0, row=2)
+        tk.Label(self, text="Set base color (0-255)").grid(column=0, row=1)
         self._base_color: tk.Button = tk.Button(
             self,
             height=1,
             width=2,
             command=lambda: self._popout(Popouts.BASE),
         )
-        self._base_color.grid(column=1, row=2)
+        self._base_color.grid(column=1, row=1)
         self._base_color_entry: tk.Entry = tk.Entry(self, width=5)
-        self._base_color_entry.grid(column=2, row=2)
+        self._base_color_entry.grid(column=2, row=1)
 
-        tk.Label(self, text="Set start tone (0-100)").grid(column=0, row=3)
+        tk.Label(self, text="Set start tone (0-100)").grid(column=0, row=2)
         self._start_color: tk.Button = tk.Button(self, height=1, width=2, command=lambda: self._popout(Popouts.START))
-        self._start_color.grid(column=1, row=3)
+        self._start_color.grid(column=1, row=2)
         self._start_color_entry: tk.Entry = tk.Entry(self, width=10)
-        self._start_color_entry.grid(column=2, row=3)
+        self._start_color_entry.grid(column=2, row=2)
 
-        tk.Label(self, text="Set end tone (0-100)").grid(column=0, row=4)
+        tk.Label(self, text="Set end tone (0-100)").grid(column=0, row=3)
         self._end_color: tk.Button = tk.Button(self, height=1, width=2, command=lambda: self._popout(Popouts.END))
-        self._end_color.grid(column=1, row=4)
+        self._end_color.grid(column=1, row=3)
         self._end_color_entry: tk.Entry = tk.Entry(self, width=10)
-        self._end_color_entry.grid(column=2, row=4)
+        self._end_color_entry.grid(column=2, row=3)
 
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
         self.grid_rowconfigure(2, weight=1)
         self.grid_rowconfigure(3, weight=1)
-        self.grid_rowconfigure(4, weight=1)
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure(2, weight=1)
@@ -372,7 +368,7 @@ class SelectColor(tk.Toplevel):
         self._get: dict[Popouts, Callable[[int], None]] = {
             t: func for t, func in zip(Popouts, (self._getBaseWindow, self._getStartWindow, self._getEndWindow))
         }
-        self._selection_image: PhotoImage = PhotoImage(file="data/click_image.png").zoom(2, 2)
+        self._selection_image: PhotoImage = PhotoImage(file="data/hue.png").zoom(2, 2)
         self._width = self._selection_image.width()
         self._height = self._selection_image.height()
         self.resizable(width=False, height=False)
