@@ -337,11 +337,11 @@ class SettingsScreen(MyScreen):
         self._base_color.config(background=Color(base, 100, 50).rgb())
 
         self._start_color_entry.delete(0, tk.END)
-        self._start_color_entry.insert(0, str(start))
+        self._start_color_entry.insert(0, str(f"{start:.2f}"))
         self._start_color.config(background=Color(base, 100, start).rgb())
 
         self._end_color_entry.delete(0, tk.END)
-        self._end_color_entry.insert(0, str(end))
+        self._end_color_entry.insert(0, str(f"{end:.2f}"))
         self._end_color.config(background=Color(base, 100, end).rgb())
 
 
