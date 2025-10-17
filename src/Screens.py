@@ -363,7 +363,8 @@ class SelectColor(tk.Toplevel):
         self._settings: SettingsScreen = settings_screen
         self.type: Popouts = pop_type
         self._set: dict[Popouts, Callable[[], None]] = {
-            t: func for t, func in zip(Popouts, (self._setBaseWindow, self._setStartWindow, self._setEndWindow))
+            t: func
+            for t, func in zip(Popouts, (self._setBaseWindow, self._setStartEndWindow, self._setStartEndWindow))
         }
         self._get: dict[Popouts, Callable[[int], None]] = {
             t: func for t, func in zip(Popouts, (self._getBaseWindow, self._getStartWindow, self._getEndWindow))
@@ -379,13 +380,14 @@ class SelectColor(tk.Toplevel):
 
     def _setupWindow(self) -> None:
         self.title(self.type.name.capitalize())
-        self.geometry(f"{self._selection_image.width()}x{self._selection_image.height()}")
+        self.geometry(f"{self._width}x{self._height}")
 
         self.protocol("WM_DELETE_WINDOW", self._onClose)
         self._set[self.type]()
 
     def _onClose(self):
         SelectColor._instance = None
+        self._settings.saveSettings()
         self.destroy()
 
     @staticmethod
@@ -404,21 +406,50 @@ class SelectColor(tk.Toplevel):
         self._image = tk.Label(self, image=self._selection_image)
         self._image.pack()
 
-    def _setStartWindow(self) -> None:
-        raise NotImplementedError
-
-    def _setEndWindow(self) -> None:
-        raise NotImplementedError
+    def _setStartEndWindow(self) -> None:
+        middle: str = Color(self._base, 100, 50).rgb()
+        canvas = GradientFrame(self, self._width, self._height, middle)
+        canvas.pack(fill="both", expand=True)
 
     def _setWindow(self, controller: "Game") -> None:
         self._win, self._base, self._start, self._end = controller.getSettingsParameters()
 
     def _getBaseWindow(self, x: int) -> None:
         base: int = int(x / self._width * 255)
+        self._base = base
         self._settings.setColors(base, self._start, self._end)
 
     def _getStartWindow(self, x: int) -> None:
-        raise NotImplementedError
+        start: float = x / self._width * 100
+        self._start = start
+        self._settings.setColors(self._base, start, self._end)
 
     def _getEndWindow(self, x: int) -> None:
-        raise NotImplementedError
+        end: float = x / self._width * 100
+        self._end = end
+        self._settings.setColors(self._base, self._start, end)
+
+
+class GradientFrame(tk.Canvas):
+    """A gradient frame which uses a canvas to draw the background"""
+
+    def __init__(self, top_level: SelectColor, width: int, height: int, color: str) -> None:
+        tk.Canvas.__init__(self, master=top_level)
+        r_mid, g_mid, b_mid = tuple(int(color[i : i + 2], 16) for i in (1, 3, 5))
+
+        mid_x = width // 2
+        for x in range(mid_x):
+            ratio = x / mid_x
+            r = int(ratio * r_mid)
+            g = int(ratio * g_mid)
+            b = int(ratio * b_mid)
+            color = f"#{r:02x}{g:02x}{b:02x}"
+            self.create_rectangle(x, 0, x + 1, height, fill=color, outline=color)
+
+        for x in range(mid_x, width):
+            ratio = (x - mid_x) / mid_x
+            r = int((1 - ratio) * r_mid + ratio * 255)
+            g = int((1 - ratio) * g_mid + ratio * 255)
+            b = int((1 - ratio) * b_mid + ratio * 255)
+            color = f"#{r:02x}{g:02x}{b:02x}"
+            self.create_rectangle(x, 0, x + 1, height, fill=color, outline=color)
