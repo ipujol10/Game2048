@@ -20,6 +20,14 @@ class Screens(Enum):
     SETTINGS = 2
 
 
+class Popouts(Enum):
+    """Type of popouts"""
+
+    BASE = 0
+    START = 1
+    END = 2
+
+
 class Color:
     """Color class to be able to work with HSl and RGB"""
 
