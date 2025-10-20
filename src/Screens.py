@@ -210,10 +210,17 @@ class MainMenuScreen(MyScreen):
             command=self._settingsButtonBind,
             font=("Arial", 20),
         ).grid(row=2, column=0)
+        tk.Button(
+            self,
+            text="Exit",
+            command=self.controller.destroy,
+            font=("Arial", 20),
+        ).grid(row=3, column=0)
 
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
         self.grid_rowconfigure(2, weight=1)
+        self.grid_rowconfigure(3, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
     def _key(self, event: Event) -> None:
@@ -258,21 +265,39 @@ class SettingsScreen(MyScreen):
         self._base_color_entry.grid(column=2, row=1)
 
         tk.Label(self, text="Set start tone (0-100)").grid(column=0, row=2)
-        self._start_color: tk.Button = tk.Button(self, height=1, width=2, command=lambda: self._popout(Popouts.START))
+        self._start_color: tk.Button = tk.Button(
+            self,
+            height=1,
+            width=2,
+            command=lambda: self._popout(Popouts.START),
+        )
         self._start_color.grid(column=1, row=2)
         self._start_color_entry: tk.Entry = tk.Entry(self, width=10)
         self._start_color_entry.grid(column=2, row=2)
 
         tk.Label(self, text="Set end tone (0-100)").grid(column=0, row=3)
-        self._end_color: tk.Button = tk.Button(self, height=1, width=2, command=lambda: self._popout(Popouts.END))
+        self._end_color: tk.Button = tk.Button(
+            self,
+            height=1,
+            width=2,
+            command=lambda: self._popout(Popouts.END),
+        )
         self._end_color.grid(column=1, row=3)
         self._end_color_entry: tk.Entry = tk.Entry(self, width=10)
         self._end_color_entry.grid(column=2, row=3)
+
+        tk.Button(
+            self,
+            text="Back",
+            font=("Arial", 16),
+            command=self._goBackToMainMenu,
+        ).grid(column=0, row=4, columnspan=3)
 
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
         self.grid_rowconfigure(2, weight=1)
         self.grid_rowconfigure(3, weight=1)
+        self.grid_rowconfigure(4, weight=1)
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure(2, weight=1)
@@ -281,8 +306,7 @@ class SettingsScreen(MyScreen):
         key: str = event.keysym
         match key:
             case "Escape":
-                self.saveSettings()
-                self.controller.showScreen(Screens.MAIN_MENU)
+                self._goBackToMainMenu()
             case "Return":
                 self.saveSettings()
                 self.setSettings()
@@ -343,6 +367,10 @@ class SettingsScreen(MyScreen):
         self._end_color_entry.delete(0, tk.END)
         self._end_color_entry.insert(0, str(f"{end:.2f}"))
         self._end_color.config(background=Color(base, 100, end).rgb())
+
+    def _goBackToMainMenu(self) -> None:
+        self.saveSettings()
+        self.controller.showScreen(Screens.MAIN_MENU)
 
 
 class SelectColor(tk.Toplevel):
