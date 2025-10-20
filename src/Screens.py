@@ -5,13 +5,13 @@ File with the different screens of the game
 from itertools import repeat
 import tkinter as tk
 from tkinter import Event, messagebox, PhotoImage
-from typing import Callable, TYPE_CHECKING
+from typing import Callable, TYPE_CHECKING, Any
 from random import choice, random
 from abc import ABC, abstractmethod
 import math
 import re
 from src import Grid
-from src.Utils import Color, Directions, Screens
+from src.Utils import Color, Directions, Screens, Popouts
 
 if TYPE_CHECKING:
     from Game import Game
@@ -246,32 +246,33 @@ class SettingsScreen(MyScreen):
         self._win.grid(column=2, row=0)
         tk.Label(self, text="Win at:").grid(column=0, row=0, columnspan=2)
 
-        self._color_image = PhotoImage(file="data/hue.png")
-        tk.Label(self, image=self._color_image).grid(row=1, column=0, columnspan=3)
-
-        tk.Label(self, text="Set base color (0-255)").grid(column=0, row=2)
-        self._base_color: tk.Label = tk.Label(self, height=1, width=2, relief="groove")
-        self._base_color.grid(column=1, row=2)
+        tk.Label(self, text="Set base color (0-255)").grid(column=0, row=1)
+        self._base_color: tk.Button = tk.Button(
+            self,
+            height=1,
+            width=2,
+            command=lambda: self._popout(Popouts.BASE),
+        )
+        self._base_color.grid(column=1, row=1)
         self._base_color_entry: tk.Entry = tk.Entry(self, width=5)
-        self._base_color_entry.grid(column=2, row=2)
+        self._base_color_entry.grid(column=2, row=1)
 
-        tk.Label(self, text="Set start tone (0-100)").grid(column=0, row=3)
-        self._start_color: tk.Label = tk.Label(self, height=1, width=2, relief="groove")
-        self._start_color.grid(column=1, row=3)
+        tk.Label(self, text="Set start tone (0-100)").grid(column=0, row=2)
+        self._start_color: tk.Button = tk.Button(self, height=1, width=2, command=lambda: self._popout(Popouts.START))
+        self._start_color.grid(column=1, row=2)
         self._start_color_entry: tk.Entry = tk.Entry(self, width=10)
-        self._start_color_entry.grid(column=2, row=3)
+        self._start_color_entry.grid(column=2, row=2)
 
-        tk.Label(self, text="Set end tone (0-100)").grid(column=0, row=4)
-        self._end_color: tk.Label = tk.Label(self, height=1, width=2, relief="groove")
-        self._end_color.grid(column=1, row=4)
+        tk.Label(self, text="Set end tone (0-100)").grid(column=0, row=3)
+        self._end_color: tk.Button = tk.Button(self, height=1, width=2, command=lambda: self._popout(Popouts.END))
+        self._end_color.grid(column=1, row=3)
         self._end_color_entry: tk.Entry = tk.Entry(self, width=10)
-        self._end_color_entry.grid(column=2, row=4)
+        self._end_color_entry.grid(column=2, row=3)
 
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
         self.grid_rowconfigure(2, weight=1)
         self.grid_rowconfigure(3, weight=1)
-        self.grid_rowconfigure(4, weight=1)
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure(2, weight=1)
@@ -294,17 +295,7 @@ class SettingsScreen(MyScreen):
         self._win.delete(0, tk.END)
         self._win.insert(0, str(win))
 
-        self._base_color_entry.delete(0, tk.END)
-        self._base_color_entry.insert(0, str(base))
-        self._base_color.config(background=Color(base, 100, 50).rgb())
-
-        self._start_color_entry.delete(0, tk.END)
-        self._start_color_entry.insert(0, str(start))
-        self._start_color.config(background=Color(base, 100, start).rgb())
-
-        self._end_color_entry.delete(0, tk.END)
-        self._end_color_entry.insert(0, str(end))
-        self._end_color.config(background=Color(base, 100, end).rgb())
+        self.setColors(base, start, end)
 
     def saveSettings(self) -> None:
         """Save the settings into game"""
@@ -335,3 +326,130 @@ class SettingsScreen(MyScreen):
 
     def _dialogBox(self, title: str, message: str) -> None:
         messagebox.showwarning(title=title, message=message)
+
+    def _popout(self, pop_type: Popouts) -> Any:
+        SelectColor.getInstance(self.controller, self, pop_type)
+
+    def setColors(self, base: int, start: float, end: float) -> None:
+        """Set the values and color buttons"""
+        self._base_color_entry.delete(0, tk.END)
+        self._base_color_entry.insert(0, str(base))
+        self._base_color.config(background=Color(base, 100, 50).rgb())
+
+        self._start_color_entry.delete(0, tk.END)
+        self._start_color_entry.insert(0, str(f"{start:.2f}"))
+        self._start_color.config(background=Color(base, 100, start).rgb())
+
+        self._end_color_entry.delete(0, tk.END)
+        self._end_color_entry.insert(0, str(f"{end:.2f}"))
+        self._end_color.config(background=Color(base, 100, end).rgb())
+
+
+class SelectColor(tk.Toplevel):
+    """Create a new window to select the colors with the mouse"""
+
+    _instance = None
+
+    def __init__(self, master: "Game", settings_screen: SettingsScreen, pop_type: Popouts) -> None:
+        if SelectColor._instance is not None:
+            raise ValueError("Already exists!")
+        tk.Toplevel.__init__(self, master=master)
+        self._win: int
+        self._base: int
+        self._start: float
+        self._end: float
+        self._image: tk.Label
+
+        self._settings: SettingsScreen = settings_screen
+        self.type: Popouts = pop_type
+        self._set: dict[Popouts, Callable[[], None]] = {
+            t: func
+            for t, func in zip(Popouts, (self._setBaseWindow, self._setStartEndWindow, self._setStartEndWindow))
+        }
+        self._get: dict[Popouts, Callable[[int], None]] = {
+            t: func for t, func in zip(Popouts, (self._getBaseWindow, self._getStartWindow, self._getEndWindow))
+        }
+        self._selection_image: PhotoImage = PhotoImage(file="data/hue.png").zoom(2, 2)
+        self._width = self._selection_image.width()
+        self._height = self._selection_image.height()
+        self.resizable(width=False, height=False)
+
+        self._setWindow(master)
+        self._setupWindow()
+        self.bind("<Button 1>", self._saveCoordinates)
+
+    def _setupWindow(self) -> None:
+        self.title(self.type.name.capitalize())
+        self.geometry(f"{self._width}x{self._height}")
+
+        self.protocol("WM_DELETE_WINDOW", self._onClose)
+        self._set[self.type]()
+
+    def _onClose(self):
+        SelectColor._instance = None
+        self._settings.saveSettings()
+        self.destroy()
+
+    @staticmethod
+    def getInstance(master: "Game", settings_screen: SettingsScreen, pop_type: Popouts) -> "SelectColor":
+        """Get the window instance if it exists or create one if not"""
+        if SelectColor._instance is None:
+            SelectColor._instance = SelectColor(master, settings_screen, pop_type)
+        SelectColor._instance.focus()
+        return SelectColor._instance
+
+    def _saveCoordinates(self, event: Event) -> None:
+        self._get[self.type](event.x)
+        self._onClose()
+
+    def _setBaseWindow(self) -> None:
+        self._image = tk.Label(self, image=self._selection_image)
+        self._image.pack()
+
+    def _setStartEndWindow(self) -> None:
+        middle: str = Color(self._base, 100, 50).rgb()
+        canvas = GradientFrame(self, self._width, self._height, middle)
+        canvas.pack(fill="both", expand=True)
+
+    def _setWindow(self, controller: "Game") -> None:
+        self._win, self._base, self._start, self._end = controller.getSettingsParameters()
+
+    def _getBaseWindow(self, x: int) -> None:
+        base: int = int(x / self._width * 255)
+        self._base = base
+        self._settings.setColors(base, self._start, self._end)
+
+    def _getStartWindow(self, x: int) -> None:
+        start: float = x / self._width * 100
+        self._start = start
+        self._settings.setColors(self._base, start, self._end)
+
+    def _getEndWindow(self, x: int) -> None:
+        end: float = x / self._width * 100
+        self._end = end
+        self._settings.setColors(self._base, self._start, end)
+
+
+class GradientFrame(tk.Canvas):
+    """A gradient frame which uses a canvas to draw the background"""
+
+    def __init__(self, top_level: SelectColor, width: int, height: int, color: str) -> None:
+        tk.Canvas.__init__(self, master=top_level)
+        r_mid, g_mid, b_mid = tuple(int(color[i : i + 2], 16) for i in (1, 3, 5))
+
+        mid_x = width // 2
+        for x in range(mid_x):
+            ratio = x / mid_x
+            r = int(ratio * r_mid)
+            g = int(ratio * g_mid)
+            b = int(ratio * b_mid)
+            color = f"#{r:02x}{g:02x}{b:02x}"
+            self.create_rectangle(x, 0, x + 1, height, fill=color, outline=color)
+
+        for x in range(mid_x, width):
+            ratio = (x - mid_x) / mid_x
+            r = int((1 - ratio) * r_mid + ratio * 255)
+            g = int((1 - ratio) * g_mid + ratio * 255)
+            b = int((1 - ratio) * b_mid + ratio * 255)
+            color = f"#{r:02x}{g:02x}{b:02x}"
+            self.create_rectangle(x, 0, x + 1, height, fill=color, outline=color)
