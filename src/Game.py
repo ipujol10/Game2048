@@ -3,7 +3,7 @@
 import tkinter as tk
 from types import TracebackType
 from src import Grid
-from src.Screens import GameScreen, MainMenuScreen, MyScreen, SettingsScreen
+from src.Screens import GameScreen, MainMenuScreen, MyScreen, SettingsScreen, EndScreen
 from src.Utils import Screens
 
 
@@ -18,7 +18,7 @@ class Game(tk.Tk):
         self.mainframe.grid(column=0, row=0, sticky=tk.N + tk.W + tk.E + tk.S)
         self._current_frame: tk.Frame
         self._frames: dict[Screens, MyScreen] = {}
-        for i, f in enumerate((GameScreen, MainMenuScreen, SettingsScreen)):
+        for i, f in enumerate((GameScreen, MainMenuScreen, SettingsScreen, EndScreen)):
             frame = f(parent=self.mainframe, controller=self)
             self._frames[Screens(i)] = frame
 
@@ -32,8 +32,7 @@ class Game(tk.Tk):
     def showScreen(self, screen: Screens) -> None:
         """Show a screen"""
         self._current_frame = self._frames[screen]
-        if isinstance(self._current_frame, SettingsScreen):
-            self._current_frame.setSettings()
+        self._current_frame.setSettings()
         self._current_frame.bindKeyboard()
         self._current_frame.tkraise()  # type: ignore
 
@@ -80,3 +79,7 @@ class Game(tk.Tk):
         game = self._frames[Screens.GAME]
         assert isinstance(game, GameScreen)
         game.generateColors()
+
+    def getWon(self) -> bool:
+        """Get if the game has ended because the player has won or just lost"""
+        return self._frames[Screens.GAME].won

@@ -18,6 +18,7 @@ class Screens(Enum):
     GAME = 0
     MAIN_MENU = 1
     SETTINGS = 2
+    END_GAME = 3
 
 
 class Popouts(Enum):

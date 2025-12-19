@@ -27,6 +27,7 @@ class MyScreen(ABC, tk.Frame):
         self.base_color: int
         self.start_color: float
         self.end_color: float
+        self.won: bool
 
     def bindKeyboard(self) -> None:
         """
@@ -38,6 +39,10 @@ class MyScreen(ABC, tk.Frame):
     @abstractmethod
     def _key(self, event: Event) -> None:
         """Define how the program will react to the keyboard input"""
+
+    @abstractmethod
+    def setSettings(self) -> None:
+        """Set settings when needed"""
 
 
 class GameScreen(MyScreen):
@@ -65,6 +70,7 @@ class GameScreen(MyScreen):
         self.base_color = 165
         self.start_color = 100
         self.end_color = 66.4
+        self.won = False
 
         self.gui_grid = self._generateTiles()
         self.generateColors()
@@ -110,9 +116,10 @@ class GameScreen(MyScreen):
 
     def isEndgame(self) -> bool:
         """
-        Checks if the player has won
+        Checks if the player has won or is out of space
         """
         if any(self.win in row for row in self.matrix.grid):
+            self.won = True
             return True
         if any(0 in row for row in self.matrix.grid):
             return False
@@ -124,6 +131,7 @@ class GameScreen(MyScreen):
                 if self.matrix.inside(x, y + 1):
                     if self.matrix[y + 1][x] == self.matrix[y][x]:
                         return False
+        self.won = False
         return True
 
     def newTile(self) -> None:
@@ -168,7 +176,7 @@ class GameScreen(MyScreen):
 
         if self.isEndgame():
             self.reset()
-            self.controller.showScreen(Screens.MAIN_MENU)
+            self.controller.showScreen(Screens.END_GAME)
             return
 
         if moved:
@@ -182,6 +190,9 @@ class GameScreen(MyScreen):
             self.newTile()
         self.matrix.updateAvailableSpace()
         self.draw()
+
+    def setSettings(self) -> None:
+        return
 
 
 class MainMenuScreen(MyScreen):
@@ -240,6 +251,9 @@ class MainMenuScreen(MyScreen):
 
     def _settingsButtonBind(self) -> None:
         self.controller.showScreen(Screens.SETTINGS)
+
+    def setSettings(self) -> None:
+        return
 
 
 class SettingsScreen(MyScreen):
@@ -370,6 +384,25 @@ class SettingsScreen(MyScreen):
 
     def _goBackToMainMenu(self) -> None:
         self.saveSettings()
+        self.controller.showScreen(Screens.MAIN_MENU)
+
+
+class EndScreen(MyScreen):
+    """The screen that will open when you end a game (by winning or loosing)"""
+
+    def __init__(self, parent: tk.Frame, controller: "Game") -> None:
+        MyScreen.__init__(self, parent, controller)
+
+        self.message: tk.StringVar = tk.StringVar(self)
+        tk.Label(self, textvariable=self.message, font=("Arial", 50, "bold")).grid(row=0, column=0, sticky="NSWE")
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+
+    def setSettings(self) -> None:
+        text: str = "WIN!!" if self.controller.getWon() else "GAME OVER"
+        self.message.set(text)
+
+    def _key(self, event: Event) -> None:
         self.controller.showScreen(Screens.MAIN_MENU)
 
 
